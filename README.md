@@ -1,1 +1,1 @@
-# java-play-ticketing
+# play-ticketing
