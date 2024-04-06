@@ -11,7 +11,13 @@ import org.springframework.web.client.RestTemplate;
 import zerobase18.playticketing.payment.dto.kakao.KakaoApproveResponseDto;
 import zerobase18.playticketing.payment.dto.kakao.KakaoReadyRequestDto;
 import zerobase18.playticketing.payment.dto.kakao.KakaoReadyResponseDto;
+import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
+import zerobase18.playticketing.payment.dto.toss.TossApproveResponseDto;
 import zerobase18.playticketing.payment.type.KakaoConstants;
+import zerobase18.playticketing.payment.type.TossConstants;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 @Slf4j
 @Service
@@ -21,11 +27,12 @@ public class PaymentService {
     private final RestTemplate restTemplate;
     private KakaoReadyRequestDto kakaoReadyRequest;
     private String tid;
-
     @Value("${kakao-secret-key}")
-    private String secretKey;
+    private String kakaoSecretKey;
+    @Value("${toss-secret-key}")
+    private String tossSecretKey;
 
-    // 결제 준비
+    // 카카오페이 결제 준비
     public KakaoReadyResponseDto kakaoPaymentReady(KakaoReadyRequestDto kakaoReadyRequestDto){
         log.info("[Service] paymentReady!");
         // 결제 승인에서 사용하기 위해 결제 준비 요청 값 담아주기
@@ -42,7 +49,7 @@ public class PaymentService {
         return kakaoReadyResponseDto;
     }
 
-    // 결제 승인
+    // 카카오페이 결제 승인
     public KakaoApproveResponseDto kakaoPaymentApprove(String pg_token){
         log.info("[Service] paymentApprove!");
         JSONObject jsonObject = new JSONObject();
@@ -79,8 +86,35 @@ public class PaymentService {
     private HttpHeaders getHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Host",KakaoConstants.KAKAO_HOST);
-        headers.set("Authorization",secretKey);
+        headers.set("Authorization",kakaoSecretKey);
         headers.set("Content-Type",KakaoConstants.KAKAO_CONTENT_TYPE);
         return headers;
+    }
+
+
+    // 토스 페이먼츠 결제 승인
+    public TossApproveResponseDto tossPaymentApprove(TossApproveRequestDto tossApproveRequestDto) {
+        log.info("[Service] tossPaymentApprove!");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderId",tossApproveRequestDto.getOrderId());
+        jsonObject.put("amount",tossApproveRequestDto.getAmount());
+        jsonObject.put("paymentKey",tossApproveRequestDto.getPaymentKey());
+
+        // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
+        // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
+        String widgetSecretKey = tossSecretKey;
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
+        String authorizations = "Basic " + new String(encodedBytes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization",authorizations);
+        headers.set("Content-Type",TossConstants.TOSS_CONTENT_TYPE);
+
+        HttpEntity<String> tossApproveRequest = new HttpEntity<>(jsonObject.toString(),headers);
+
+        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_APPROVE_URL,
+                tossApproveRequest, TossApproveResponseDto.class);
     }
 }
