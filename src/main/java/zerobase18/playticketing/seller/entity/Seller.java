@@ -1,4 +1,4 @@
-package zerobase18.playticketing.customer.entity;
+package zerobase18.playticketing.seller.entity;
 
 
 import jakarta.persistence.*;
@@ -16,14 +16,14 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class Customer extends BaseEntity implements UserDetails {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Seller extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer customerId;
+    private Integer sellerId;
 
     @NotNull
     @Column(unique = true)
@@ -40,7 +40,7 @@ public class Customer extends BaseEntity implements UserDetails {
     private String name;
 
     @NotNull
-    private String birth;
+    private String company;
 
     @NotNull
     private String phone;
@@ -52,10 +52,9 @@ public class Customer extends BaseEntity implements UserDetails {
     private String address;
 
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_SELLER"));
     }
 
     @Override

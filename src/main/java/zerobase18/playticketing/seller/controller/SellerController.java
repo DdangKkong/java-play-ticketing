@@ -1,4 +1,4 @@
-package zerobase18.playticketing.customer.controller;
+package zerobase18.playticketing.seller.controller;
 
 
 import jakarta.validation.Valid;
@@ -9,24 +9,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import zerobase18.playticketing.auth.dto.CustomerSignUpDto;
-import zerobase18.playticketing.customer.service.CustomerService;
+import zerobase18.playticketing.auth.dto.SellerSignUpDto;
+import zerobase18.playticketing.seller.service.SellerService;
 
 @RestController
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("/customer")
-public class CustomerController {
+@RequestMapping("/seller")
+public class SellerController {
 
-    private final CustomerService customerService;
+    private final SellerService sellerService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> customerSignUp(@RequestBody @Valid CustomerSignUpDto customerSignUpDto) {
+    @PostMapping
+    public ResponseEntity<?> sellerSignUp(@RequestBody @Valid SellerSignUpDto signUpDto) {
 
         return ResponseEntity.ok().body(
-                customerSignUpDto.from(customerService.signUp(customerSignUpDto))
+                signUpDto.from(sellerService.signUp(signUpDto))
         );
     }
-
 
 }

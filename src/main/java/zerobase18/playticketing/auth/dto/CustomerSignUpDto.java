@@ -4,16 +4,18 @@ package zerobase18.playticketing.auth.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.customer.dto.CustomerDto;
 
 @Data
 @Builder
 @AllArgsConstructor
-public class SignUpDto {
+public class CustomerSignUpDto {
 
     private String loginId;
 
     private String password;
+
 
     private String name;
 
@@ -26,9 +28,9 @@ public class SignUpDto {
     private String address;
 
 
-    public SignUpDto from(CustomerDto customerDto) {
+    public CustomerSignUpDto from(CustomerDto customerDto) {
 
-        return SignUpDto.builder()
+        return CustomerSignUpDto.builder()
                 .loginId(customerDto.getLoginId())
                 .password(customerDto.getPassword())
                 .name(customerDto.getName())

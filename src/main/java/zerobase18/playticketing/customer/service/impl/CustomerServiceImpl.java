@@ -5,14 +5,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase18.playticketing.auth.dto.SignUpDto;
+import zerobase18.playticketing.auth.dto.CustomerSignUpDto;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.customer.dto.CustomerDto;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.customer.service.CustomerService;
-
-import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @Service
@@ -27,12 +25,12 @@ public class CustomerServiceImpl implements CustomerService {
      */
     @Override
     @Transactional
-    public CustomerDto signUp(SignUpDto user) {
+    public CustomerDto signUp(CustomerSignUpDto user) {
 
         boolean exists = customerRepository.existsByLoginId(user.getLoginId());
 
         if (exists) {
-            throw new RuntimeException("이미 존재하는 고객입니다.");
+            throw new RuntimeException("이미 존재하는 아이디입니다.");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -47,9 +45,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .phone(user.getPhone())
                 .email(user.getEmail())
                 .address(user.getAddress())
-                .createdAt(LocalDateTime.now())
                 .build());
-
         return CustomerDto.fromEntity(customer);
     }
 }
