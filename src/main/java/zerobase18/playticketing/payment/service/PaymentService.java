@@ -8,9 +8,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import zerobase18.playticketing.payment.dto.kakao.KakaoApproveResponseDto;
-import zerobase18.playticketing.payment.dto.kakao.KakaoReadyRequestDto;
-import zerobase18.playticketing.payment.dto.kakao.KakaoReadyResponseDto;
+import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
 import zerobase18.playticketing.payment.dto.toss.TossApproveResponseDto;
 import zerobase18.playticketing.payment.type.KakaoConstants;
@@ -34,7 +32,7 @@ public class PaymentService {
 
     // 카카오페이 결제 준비
     public KakaoReadyResponseDto kakaoPaymentReady(KakaoReadyRequestDto kakaoReadyRequestDto){
-        log.info("[Service] paymentReady!");
+        log.info("[Service] kakaoPaymentReady!");
         // 결제 승인에서 사용하기 위해 결제 준비 요청 값 담아주기
         kakaoReadyRequest = kakaoReadyRequestDto;
 
@@ -51,7 +49,7 @@ public class PaymentService {
 
     // 카카오페이 결제 승인
     public KakaoApproveResponseDto kakaoPaymentApprove(String pg_token){
-        log.info("[Service] paymentApprove!");
+        log.info("[Service] kakaoPaymentApprove!");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoReadyRequest.getCid());
         jsonObject.put("tid",tid);
@@ -117,4 +115,22 @@ public class PaymentService {
         return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_APPROVE_URL,
                 tossApproveRequest, TossApproveResponseDto.class);
     }
+
+    // 카카오페이 결제 취소
+    public KakaoCancelResponseDto kakaoPaymentCancel(KakaoCancelRequestDto kakaoCancelRequestDto){
+        log.info("[Service] kakaoPaymentCancel!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("cid",kakaoCancelRequestDto.getCid());
+        jsonObject.put("tid",tid);
+        jsonObject.put("cancel_amount",kakaoCancelRequestDto.getCancel_amount());
+        jsonObject.put("cancel_tax_free_amount",kakaoCancelRequestDto.getCancel_tax_free_amount());
+
+        HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+
+        // 결제승인 요청후 응답
+        return restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_CANCEL_URL,
+                kakaoApproveRequest, KakaoCancelResponseDto.class);
+    }
+
+
 }
