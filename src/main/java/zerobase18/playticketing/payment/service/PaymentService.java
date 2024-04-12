@@ -127,10 +127,20 @@ public class PaymentService {
 
         HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
-        // 결제승인 요청후 응답
         return restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_CANCEL_URL,
                 kakaoApproveRequest, KakaoCancelResponseDto.class);
     }
 
+    // 카카오페이 결제 조회
+    public KakaoOrderResponseDto kakaoPaymentOrder(KakaoOrderRequestDto kakaoOrderRequestDto) {
+        log.info("[Service] kakaoPaymentOrder!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("cid",kakaoOrderRequestDto.getCid());
+        jsonObject.put("tid",tid);
 
+        HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+
+        return restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_ORDER_URL,
+                kakaoApproveRequest, KakaoOrderResponseDto.class);
+    }
 }

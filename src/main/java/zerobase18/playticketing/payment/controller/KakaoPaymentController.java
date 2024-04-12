@@ -34,4 +34,11 @@ public class KakaoPaymentController {
         return paymentService.kakaoPaymentCancel(kakaoCancelRequestDto);
     }
 
+    // 카카오 페이 결제 조회
+    @GetMapping("/order")
+    public KakaoOrderResponseDto kakaoPaymentOrder(@RequestBody KakaoOrderRequestDto kakaoOrderRequestDto){
+        log.info("[Controller] kakaoPaymentOrder!");
+        return paymentService.kakaoPaymentOrder(kakaoOrderRequestDto);
+    }
+
 }
