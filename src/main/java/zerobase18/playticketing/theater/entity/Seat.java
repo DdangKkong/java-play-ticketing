@@ -24,8 +24,16 @@ public class Seat {
     @Column(name = "seat_num")
     private int seatNum;
 
+    // 좌석 타입
+    @Column(name = "seat_type")
+    private String  seatType;
+
+    // 좌석 가격
+    @Column(name = "seat_price")
+    private int seatPrice;
+
     @ManyToOne
-    @JoinColumn(name = "seat_type_id")
-    private SeatType seatType;
+    @JoinColumn(name = "theater_id")
+    private Theater theater;
 
 }

@@ -27,11 +27,11 @@ public class Theater {
     private String theaterAdress;
 
     // 총 좌석 수
-    @Column(name = "seat_total_num")
+    @Column(name = "seat_total_count")
     private int seatTotalCount;
 
     // 좌석의 열 수 (가로)
-    @Column(name = "seat_row_num")
+    @Column(name = "seat_row_count")
     private int seatRowCount;
 
     // 생성 일시

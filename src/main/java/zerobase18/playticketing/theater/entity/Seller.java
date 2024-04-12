@@ -15,4 +15,7 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seller_id")
     private int id;
+
+    @Column(name = "seller_name")
+    private String sellerName;
 }
