@@ -157,6 +157,15 @@ public class PaymentService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cancelReason",tossCancelRequestDto.getCancelReason());
 
+        // 가상계좌 결제시 필수 값 세팅
+        if (tossCancelRequestDto.getRefundReceiveAccount() != null) {
+            JSONObject innerJson = new JSONObject();
+            innerJson.put("bank", tossCancelRequestDto.getRefundReceiveAccount().getBank());
+            innerJson.put("accountNumber", tossCancelRequestDto.getRefundReceiveAccount().getAccountNumber());
+            innerJson.put("holderName", tossCancelRequestDto.getRefundReceiveAccount().getHolderName());
+            jsonObject.put("refundReceiveAccount", innerJson);
+        }
+
         // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
         // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
         String widgetSecretKey = tossSecretKey;
