@@ -50,4 +50,10 @@ public class TossPaymentController {
         log.info("[Controller] tossPaymentCancel!");
         return ResponseEntity.ok().body(paymentService.tossPaymentCancel(tossCancelRequestDto));
     }
+
+    @GetMapping("/toss/order")
+    public ResponseEntity tossPaymentOrder(@RequestParam String paymentKey){
+        log.info("[Controller] tossPaymentOrder!");
+        return ResponseEntity.ok().body(paymentService.tossPaymentOrder(paymentKey));
+    }
 }

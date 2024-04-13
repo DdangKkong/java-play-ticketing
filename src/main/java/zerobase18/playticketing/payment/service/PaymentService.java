@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import zerobase18.playticketing.payment.dto.kakao.*;
@@ -173,8 +174,30 @@ public class PaymentService {
         log.info("{}", jsonObject);
 
         // 임시로 사용 추후 paymentKey 값은 db에서 조회해서 가져와야함
-        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_CANCEL_URL+paymentKey+"/cancel",
+        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_URL+paymentKey+"/cancel",
                 tossCancelRequest, TossApproveResponseDto.class);
+    }
+
+    public TossApproveResponseDto tossPaymentOrder(String paymentKey) {
+        log.info("[Service] tossPaymentOrder!");
+
+        // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
+        // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
+        String widgetSecretKey = tossSecretKey;
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
+        String authorizations = "Basic " + new String(encodedBytes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization",authorizations);
+
+        HttpEntity<String> tossOrderRequest = new HttpEntity<>(headers);
+
+        log.info("paymentKey : {}",paymentKey);
+
+        return restTemplate.exchange(TossConstants.TOSS_PAYMENT_URL+paymentKey, HttpMethod.GET, tossOrderRequest,
+                TossApproveResponseDto.class).getBody();
+
     }
 
 }
