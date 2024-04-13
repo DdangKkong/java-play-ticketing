@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TossApproveRequestDto {
+public class Failure {
 
-    private String paymentKey;      // 결제의 키 값
-    private String orderId;         // 주문번호
-    private int amount;             // 결제할 금액
-
+    private String code;        // 오류 타입을 보여주는 에러 코드
+    private String message;     // 에러 메시지
 }

@@ -9,10 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TossApproveRequestDto {
+public class Discount {
 
-    private String paymentKey;      // 결제의 키 값
-    private String orderId;         // 주문번호
-    private int amount;             // 결제할 금액
-
+    private int amount;     // 카드사의 즉시 할인 프로모션을 적용한 금액
 }

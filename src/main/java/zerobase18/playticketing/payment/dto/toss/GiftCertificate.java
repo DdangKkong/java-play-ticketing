@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TossApproveRequestDto {
+public class GiftCertificate {
 
-    private String paymentKey;      // 결제의 키 값
-    private String orderId;         // 주문번호
-    private int amount;             // 결제할 금액
+    private String approveNo;               // 결제 승인번호
+    private String settlementStatus;        // 정산 상태
 
 }

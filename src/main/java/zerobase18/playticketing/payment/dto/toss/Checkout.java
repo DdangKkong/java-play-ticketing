@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TossApproveRequestDto {
+public class Checkout {
 
-    private String paymentKey;      // 결제의 키 값
-    private String orderId;         // 주문번호
-    private int amount;             // 결제할 금액
+    private String url;     // 결제창이 열리는 주소
 
 }

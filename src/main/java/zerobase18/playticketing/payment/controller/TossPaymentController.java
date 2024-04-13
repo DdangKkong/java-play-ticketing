@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
+import zerobase18.playticketing.payment.dto.toss.TossCancelRequestDto;
 import zerobase18.playticketing.payment.service.PaymentService;
 
 @Slf4j
@@ -36,10 +37,17 @@ public class TossPaymentController {
     }
 
     // 토스 페이먼츠 결제 승인
-    @PostMapping("/confirm")
+    @PostMapping("/toss/confirm")
     public ResponseEntity tossPaymentApprove(@RequestBody TossApproveRequestDto tossApproveRequestDto){
         log.info("[Controller] tossPaymentApprove!");
         log.info("orderId : {}",tossApproveRequestDto.getOrderId());
         return ResponseEntity.ok().body(paymentService.tossPaymentApprove(tossApproveRequestDto));
+    }
+
+    // 토스 페이먼츠 결제 취소
+    @GetMapping("/toss/cancel")
+    public ResponseEntity tossPaymentCancel(@RequestBody TossCancelRequestDto tossCancelRequestDto){
+        log.info("[Controller] tossPaymentCancel!");
+        return ResponseEntity.ok().body(paymentService.tossPaymentCancel(tossCancelRequestDto));
     }
 }

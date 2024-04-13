@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
 import zerobase18.playticketing.payment.dto.toss.TossApproveResponseDto;
+import zerobase18.playticketing.payment.dto.toss.TossCancelRequestDto;
 import zerobase18.playticketing.payment.type.KakaoConstants;
 import zerobase18.playticketing.payment.type.TossConstants;
 
@@ -25,6 +26,7 @@ public class PaymentService {
     private final RestTemplate restTemplate;
     private KakaoReadyRequestDto kakaoReadyRequest;
     private String tid;
+    private String paymentKey;
     @Value("${kakao-secret-key}")
     private String kakaoSecretKey;
     @Value("${toss-secret-key}")
@@ -64,8 +66,8 @@ public class PaymentService {
                 kakaoApproveRequest, KakaoApproveResponseDto.class);
     }
 
-    // JSON Object에 담아주기
-    private static JSONObject getJsonObject(KakaoReadyRequestDto kakaoReadyRequestDto) {
+    // 결제 준비 요청값 JSON Object에 담아주기
+    private JSONObject getJsonObject(KakaoReadyRequestDto kakaoReadyRequestDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid", kakaoReadyRequestDto.getCid());
         jsonObject.put("partner_order_id", kakaoReadyRequestDto.getPartner_order_id());
@@ -99,6 +101,9 @@ public class PaymentService {
         jsonObject.put("amount",tossApproveRequestDto.getAmount());
         jsonObject.put("paymentKey",tossApproveRequestDto.getPaymentKey());
 
+        // 결제 승인에 사용할 paymentKey 담아주기
+        paymentKey = tossApproveRequestDto.getPaymentKey();
+
         // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
         // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
         String widgetSecretKey = tossSecretKey;
@@ -121,14 +126,14 @@ public class PaymentService {
         log.info("[Service] kakaoPaymentCancel!");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoCancelRequestDto.getCid());
-        jsonObject.put("tid",tid);
+        jsonObject.put("tid",tid); // 임시로 사용 추후 tid값은 db에서 조회해서 가져와야함
         jsonObject.put("cancel_amount",kakaoCancelRequestDto.getCancel_amount());
         jsonObject.put("cancel_tax_free_amount",kakaoCancelRequestDto.getCancel_tax_free_amount());
 
-        HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+        HttpEntity<String> kakaoCancelRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
         return restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_CANCEL_URL,
-                kakaoApproveRequest, KakaoCancelResponseDto.class);
+                kakaoCancelRequest, KakaoCancelResponseDto.class);
     }
 
     // 카카오페이 결제 조회
@@ -136,11 +141,40 @@ public class PaymentService {
         log.info("[Service] kakaoPaymentOrder!");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoOrderRequestDto.getCid());
-        jsonObject.put("tid",tid);
+        jsonObject.put("tid",tid); // 임시로 사용 추후 tid값은 db에서 조회해서 가져와야함
 
-        HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+        HttpEntity<String> kakaoOrderRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
         return restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_ORDER_URL,
-                kakaoApproveRequest, KakaoOrderResponseDto.class);
+                kakaoOrderRequest, KakaoOrderResponseDto.class);
     }
+
+    // 토스 페이먼츠 결제 취소
+    public TossApproveResponseDto tossPaymentCancel(TossCancelRequestDto tossCancelRequestDto) {
+        log.info("[Service] tossPaymentCancel!");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("cancelReason",tossCancelRequestDto.getCancelReason());
+
+        // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
+        // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
+        String widgetSecretKey = tossSecretKey;
+        Base64.Encoder encoder = Base64.getEncoder();
+        byte[] encodedBytes = encoder.encode((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
+        String authorizations = "Basic " + new String(encodedBytes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization",authorizations);
+        headers.set("Content-Type",TossConstants.TOSS_CONTENT_TYPE);
+
+        HttpEntity<String> tossCancelRequest = new HttpEntity<>(jsonObject.toString(),headers);
+
+        log.info("결제 취소 요청 json");
+        log.info("{}", jsonObject);
+
+        // 임시로 사용 추후 paymentKey 값은 db에서 조회해서 가져와야함
+        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_CANCEL_URL+paymentKey+"/cancel",
+                tossCancelRequest, TossApproveResponseDto.class);
+    }
+
 }
