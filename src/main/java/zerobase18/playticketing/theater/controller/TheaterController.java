@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import zerobase18.playticketing.theater.dto.CreateTheater;
-import zerobase18.playticketing.theater.dto.ReadTheater;
-import zerobase18.playticketing.theater.dto.TheaterDto;
-import zerobase18.playticketing.theater.dto.UpdateTheater;
+import zerobase18.playticketing.theater.dto.*;
 import zerobase18.playticketing.theater.service.TheaterService;
 
 @RestController
@@ -28,7 +25,7 @@ public class TheaterController {
         return ResponseEntity.ok(response);
     }
 
-    // 극장 조회
+    // 극장 조회 - 누구나 가능
     @GetMapping
     public ResponseEntity<ReadTheater.Response> readTheater(
             @RequestParam(name = "theaterId") int theaterId
@@ -50,5 +47,16 @@ public class TheaterController {
         return ResponseEntity.ok(response);
     }
 
+    // 극장 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
+    @DeleteMapping
+    public ResponseEntity<DeleteTheater.Response> deleteTheater(
+            @RequestParam(name = "theaterId") int theaterId,
+            @RequestParam(name = "sellerId") int sellerId
+    ){
+        TheaterDto theaterDto = theaterService.deleteTheater(theaterId, sellerId);
+        DeleteTheater.Response response = DeleteTheater.Response.fromDto(theaterDto);
+
+        return ResponseEntity.ok(response);
+    }
 
 }

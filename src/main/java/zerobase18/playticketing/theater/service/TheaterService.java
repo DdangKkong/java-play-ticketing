@@ -74,7 +74,7 @@ public class TheaterService {
         return theaterDto;
     }
 
-    // 극장 조회
+    // 극장 조회 - 누구나 가능
     public TheaterDto readTheater(int theaterId) {
 
         // 극장 정보와 좌석 정보 불러오기
@@ -114,6 +114,30 @@ public class TheaterService {
         seatRepository.deleteAllByTheater(theater);
         List<Seat> seatList = seatService.createSeat(
                 theater.getId(), request.getSeatTypeArr(), request.getSeatRowArr(), request.getSeatPriceArr(), request.getSeatNumArr());
+        TheaterDto theaterDto = TheaterDto.fromEntity(theater);
+        theaterDto.setSeatList(seatList);
+
+        return theaterDto;
+    }
+
+    // 극장 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
+    @Transactional
+    public TheaterDto deleteTheater(int theaterId, int sellerId) {
+
+        // 연극 업체 정보와 극장 정보, 좌석 정보 불러오기
+        Seller seller = findSeller(sellerId);
+        Theater theater = findTheater(theaterId);
+        List<Seat> seatList = seatRepository.findAllByTheater(theater);
+
+        // 삭제 시간 넣기
+        LocalDateTime now = LocalDateTime.now();
+        // DateTimeFormatter를 사용하여 날짜와 시간 형식을 포맷
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+        // 타입을 LocalDateTime 으로
+        LocalDateTime deletedAt = LocalDateTime.parse(formattedNow, formatter);
+        theater.setDeletedAt(deletedAt);
+
         TheaterDto theaterDto = TheaterDto.fromEntity(theater);
         theaterDto.setSeatList(seatList);
 

@@ -26,22 +26,6 @@ public class SeatService {
         Theater theater = findTheater(theaterId);
         int[] seatTypeIdArr = new int[seatTypeArr.length];
 
-//        for (int i = 0; i < seatTypeArr.length; i++) {
-//            String ST = seatTypeArr[i];
-//            int SP = seatPriceArr[i];
-//
-//            // seatType 미리 생성 (seatTypeId 값을 받아오기 위해)
-//            SeatType seatType = seatTypeRepository.save(SeatType.builder()
-//                            .seatType(ST)
-//                            .seatPrice(SP)
-//                            .theater(theater)
-//                            .build());
-//            int seatTypeId = seatType.getId();
-//            // seatTypeId 를 행렬에 삽입
-//            seatTypeIdArr[i] = seatTypeId;
-//        }
-
-
         List<Seat> seatList = new ArrayList<>();
 
         for (int i = 0; i < seatTypeIdArr.length; i++) {

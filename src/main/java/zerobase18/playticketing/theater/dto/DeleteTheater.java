@@ -7,7 +7,7 @@ import zerobase18.playticketing.theater.entity.Seat;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class ReadTheater {
+public class DeleteTheater {
 
     @Builder
     @Getter
@@ -24,7 +24,7 @@ public class ReadTheater {
         private LocalDateTime deletedAt;
         private List<Seat> seatList;
 
-        public static ReadTheater.Response fromDto(TheaterDto theaterDto) {
+        public static DeleteTheater.Response fromDto(TheaterDto theaterDto) {
             return Response.builder()
                     .theaterId(theaterDto.getTheaterId())
                     .sellerId(theaterDto.getSellerId())

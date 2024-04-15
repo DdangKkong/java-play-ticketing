@@ -1,5 +1,6 @@
 package zerobase18.playticketing.theater.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,15 +16,23 @@ public class CreateTheater {
 
         @NotNull
         private int sellerId;
+        @NotBlank
         private String theaterName;
+        @NotBlank
         private String theaterAdress;
+        @NotNull
         private int seatTotalCount;
+        @NotNull
         private int seatRowCount;
         // 아래 3개 행렬 모두 행렬의 크기가 seatType의 갯수이고 같다.
+        @NotNull
         private String[] seatTypeArr;
+        @NotNull
         private char[] seatRowArr;
+        @NotNull
         private int[] seatPriceArr;
         // 시작번호, 끝번호가 들어간 행렬 (크기 : i * 2)
+        @NotNull
         private int[][] seatNumArr;
 
     }
