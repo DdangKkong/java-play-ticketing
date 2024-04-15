@@ -19,20 +19,27 @@ public class TossPaymentController {
 
     // 토스 페이먼츠 결제 요청
     @GetMapping("/toss")
-    public String tossPayment(){
-        log.info("tossPayment!");
+    public String tossPaymentRequest(@RequestParam int reserAmount, @RequestParam String orderId,
+                                     @RequestParam int reserId){
+        log.info("tossPaymentRequest!");
+        log.info("toss reserAmount : {}",reserAmount);
+        log.info("toss orderId : {}",orderId);
+        log.info("toss reserId : {}",reserId);
+        paymentService.tossPaymentRequest(reserAmount,orderId,reserId);
         return "ui/checkout";
     }
 
     // 토스 페이먼츠 결제 요청 성공
     @GetMapping("/toss/success")
-    public String tossPaymentSuccess(@RequestParam String paymentType, @RequestParam String orderId,
-                                      @RequestParam String paymentKey, @RequestParam int amount){
-        log.info("tossPaymentSuccess!");
+    public String tossPaymentRequestSuccess(@RequestParam String paymentType, @RequestParam String orderId,
+                                            @RequestParam String paymentKey, @RequestParam int amount,
+                                            @RequestParam int reserId){
+        log.info("tossPaymentRequestSuccess!");
+        log.info("toss paymentType : {}",paymentType);
         log.info("toss orderId : {}",orderId);
         log.info("toss paymentKey : {}",paymentKey);
         log.info("toss amount : {}",amount);
-        log.info("toss paymentType : {}",paymentType);
+        paymentService.tossPaymentRequestSuccess(orderId,amount,reserId);
         return "ui/success";
     }
 

@@ -8,16 +8,23 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import zerobase18.playticketing.payment.dto.PaymentDto;
 import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
 import zerobase18.playticketing.payment.dto.toss.TossApproveResponseDto;
 import zerobase18.playticketing.payment.dto.toss.TossCancelRequestDto;
+import zerobase18.playticketing.payment.entity.Payment;
+import zerobase18.playticketing.payment.entity.Reservation;
+import zerobase18.playticketing.payment.repository.PaymentRepository;
+import zerobase18.playticketing.payment.repository.ReservationRepository;
 import zerobase18.playticketing.payment.type.KakaoConstants;
 import zerobase18.playticketing.payment.type.TossConstants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -25,9 +32,16 @@ import java.util.Base64;
 public class PaymentService {
 
     private final RestTemplate restTemplate;
+    private final ReservationRepository reservationRepository;
+    private final PaymentRepository paymentRepository;
     private KakaoReadyRequestDto kakaoReadyRequest;
     private String tid;
-    private String paymentKey;
+
+    // 결제 요청 데이터 임시 저장
+    private int reserAmount;
+    private String orderId;
+    private int reserId;
+
     @Value("${kakao-secret-key}")
     private String kakaoSecretKey;
     @Value("${toss-secret-key}")
@@ -94,16 +108,34 @@ public class PaymentService {
 
 
     // 토스 페이먼츠 결제 승인
-    public TossApproveResponseDto tossPaymentApprove(TossApproveRequestDto tossApproveRequestDto) {
+    @Transactional
+    public PaymentDto tossPaymentApprove(TossApproveRequestDto tossApproveRequestDto) {
         log.info("[Service] tossPaymentApprove!");
+        // 결제할 예약 정보 조회 (결제 요청때 저장한 예약 고유번호)
+        Reservation reservation = reservationRepository.findById(reserId)
+                .orElseThrow(()->new RuntimeException()); // 해당 예약이 존재하지 않습니다
 
+        // 예약 상태를 예약 완료로 변경
+        reservation.successReser();
+
+        // 결제 승인 응답
+        TossApproveResponseDto tossApproveResponseDto = tossPaymentAccept(tossApproveRequestDto);
+
+        // 응답값 변환
+        Payment payment = Payment.fromTossDto(tossApproveResponseDto);
+
+        // 결제 정보 저장
+        return PaymentDto.fromEntity(paymentRepository.save(payment));
+
+    }
+
+
+    // 토스 페이먼츠 결제 승인 응답
+    private TossApproveResponseDto tossPaymentAccept(TossApproveRequestDto tossApproveRequestDto) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("orderId",tossApproveRequestDto.getOrderId());
-        jsonObject.put("amount",tossApproveRequestDto.getAmount());
-        jsonObject.put("paymentKey",tossApproveRequestDto.getPaymentKey());
-
-        // 결제 승인에 사용할 paymentKey 담아주기
-        paymentKey = tossApproveRequestDto.getPaymentKey();
+        jsonObject.put("orderId", tossApproveRequestDto.getOrderId());
+        jsonObject.put("amount", tossApproveRequestDto.getAmount());
+        jsonObject.put("paymentKey", tossApproveRequestDto.getPaymentKey());
 
         // 토스페이먼츠 API는 시크릿 키를 사용자 ID로 사용하고, 비밀번호는 사용하지 않습니다.
         // 비밀번호가 없다는 것을 알리기 위해 시크릿 키 뒤에 콜론을 추가합니다.
@@ -122,12 +154,13 @@ public class PaymentService {
                 tossApproveRequest, TossApproveResponseDto.class);
     }
 
+
     // 카카오페이 결제 취소
     public KakaoCancelResponseDto kakaoPaymentCancel(KakaoCancelRequestDto kakaoCancelRequestDto){
         log.info("[Service] kakaoPaymentCancel!");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoCancelRequestDto.getCid());
-        jsonObject.put("tid",tid); // 임시로 사용 추후 tid값은 db에서 조회해서 가져와야함
+        jsonObject.put("tid",tid);
         jsonObject.put("cancel_amount",kakaoCancelRequestDto.getCancel_amount());
         jsonObject.put("cancel_tax_free_amount",kakaoCancelRequestDto.getCancel_tax_free_amount());
 
@@ -142,7 +175,7 @@ public class PaymentService {
         log.info("[Service] kakaoPaymentOrder!");
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoOrderRequestDto.getCid());
-        jsonObject.put("tid",tid); // 임시로 사용 추후 tid값은 db에서 조회해서 가져와야함
+        jsonObject.put("tid",tid);
 
         HttpEntity<String> kakaoOrderRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
@@ -151,13 +184,40 @@ public class PaymentService {
     }
 
     // 토스 페이먼츠 결제 취소
-    public TossApproveResponseDto tossPaymentCancel(TossCancelRequestDto tossCancelRequestDto) {
+    @Transactional
+    public PaymentDto tossPaymentCancel(TossCancelRequestDto tossCancelRequestDto) {
         log.info("[Service] tossPaymentCancel!");
+        // 결제 취소할 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(tossCancelRequestDto.getReserId())
+                .orElseThrow(()-> new RuntimeException()); // 해당 예약 정보가 없습니다
 
+        // 예약 상태를 예약 취소로 변경
+        reservation.canceledReser();
+
+        // 취소할 결제 정보 조회
+        Payment payment = paymentRepository.findById(tossCancelRequestDto.getPaymentId())
+                .orElseThrow(()->new RuntimeException()); // 해당 결제 정보가 없습니다
+
+        // 토스 결제 취소 응답
+        TossApproveResponseDto tossCancelResponseDto = tossPaymentCancelAccept(tossCancelRequestDto);
+
+        // 응답값 변환
+        Payment cancelPayment = Payment.fromTossDto(tossCancelResponseDto);
+
+        // 취소 일시, 취소 사유 설정
+        payment.cancel(cancelPayment.getCanceledAt(),cancelPayment.getCancelReason());
+
+        // 결제 취소 정보 저장
+        return PaymentDto.fromEntity(payment);
+    }
+
+
+    // 토스 페이먼츠 결제 취소 응답
+    private TossApproveResponseDto tossPaymentCancelAccept(TossCancelRequestDto tossCancelRequestDto) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("cancelReason",tossCancelRequestDto.getCancelReason());
+        jsonObject.put("cancelReason", tossCancelRequestDto.getCancelReason());
 
-        // 가상계좌 결제시 필수 값 세팅
+        // 가상계좌 결제 취소시 필수 값 세팅
         if (tossCancelRequestDto.getRefundReceiveAccount() != null) {
             JSONObject innerJson = new JSONObject();
             innerJson.put("bank", tossCancelRequestDto.getRefundReceiveAccount().getBank());
@@ -182,8 +242,8 @@ public class PaymentService {
         log.info("결제 취소 요청 json");
         log.info("{}", jsonObject);
 
-        // 임시로 사용 추후 paymentKey 값은 db에서 조회해서 가져와야함
-        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_URL+paymentKey+"/cancel",
+        return restTemplate.postForObject(TossConstants.TOSS_PAYMENT_URL
+                        + tossCancelRequestDto.getPaymentKey() + "/cancel",
                 tossCancelRequest, TossApproveResponseDto.class);
     }
 
@@ -208,5 +268,19 @@ public class PaymentService {
                 TossApproveResponseDto.class).getBody();
 
     }
+    // 주문번호, 금액, 예약 고유번호 임시 저장
+    public void tossPaymentRequest(int reserAmount, String orderId,int reserId) {
+        this.reserAmount = reserAmount;
+        this.orderId = orderId;
+        this.reserId = reserId;
+    }
 
+    // 토스 결제 요청 성공
+    @Transactional
+    public void tossPaymentRequestSuccess(String orderId, int amount,int reserId) {
+        // 결제 요청할때 저장한 주문번호, 금액, 예약 고유번호가 맞지 않을경우 예외처리
+        if (!this.orderId.equals(orderId) || this.reserAmount != amount || this.reserId != reserId){
+            throw new RuntimeException();
+        }
+    }
 }

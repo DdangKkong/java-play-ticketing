@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TossCancelRequestDto {
 
+    private int paymentId;                                  // 결제정보 고유번호
+    private int reserId;                                    // 예약 고유번호
+    private String paymentKey;                              // 결제 고유번호
     private String cancelReason;                            // 결제를 취소하는 이유
     private int cancelAmount;                               // 취소할 금액
     private RefundReceiveAccount refundReceiveAccount;      // 결제 취소 후 금액이 환불될 계좌의 정보
