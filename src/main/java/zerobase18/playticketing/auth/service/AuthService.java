@@ -19,6 +19,8 @@ import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.seller.entity.Seller;
 import zerobase18.playticketing.seller.repository.SellerRepository;
 
+import static zerobase18.playticketing.auth.type.UserType.CUSTOMER;
+import static zerobase18.playticketing.auth.type.UserType.SELLER;
 import static zerobase18.playticketing.global.type.ErrorCode.PASSWORD_NOT_MATCH;
 import static zerobase18.playticketing.global.type.ErrorCode.USER_NOT_FOUND;
 
@@ -62,34 +64,27 @@ public class AuthService implements UserDetailsService {
 
             Customer customer = checkCustomerLogInId(loginId);
 
-            return createCustomerDetail(customer.getLoginId(), customer.getPassword());
+            return createUserDetail(customer.getLoginId(), customer.getPassword(), CUSTOMER);
 
-        }
-
-        if (sellerRepository.existsByLoginId(loginId)) {
+        } else if (sellerRepository.existsByLoginId(loginId)) {
 
             Seller seller = checkSellerLogInId(loginId);
 
-            return createSellerDetail(seller.getLoginId(), seller.getPassword());
+            return createUserDetail(seller.getLoginId(), seller.getPassword(), SELLER);
 
         }
 
         throw new UsernameNotFoundException("User not found with loginId" + loginId);
     }
 
-    private UserDetails createCustomerDetail(String loginId, String password) {
+    private UserDetails createUserDetail(String loginId, String password, UserType userType) {
         return User.withUsername(loginId)
                 .password(passwordEncoder.encode(password))
-                .roles(String.valueOf(UserType.CUSTOMER))
+                .roles(String.valueOf(userType))
                 .build();
     }
 
-    private UserDetails createSellerDetail(String loginId, String password) {
-        return User.withUsername(loginId)
-                .password(passwordEncoder.encode(password))
-                .roles(String.valueOf(UserType.SELLER))
-                .build();
-    }
+
 
 
     private Customer checkCustomerLogInId(String loginId) {
