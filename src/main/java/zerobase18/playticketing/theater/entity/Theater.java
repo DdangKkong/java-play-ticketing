@@ -2,6 +2,7 @@ package zerobase18.playticketing.theater.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import zerobase18.playticketing.seller.entity.Seller;
 
 import java.time.LocalDateTime;
 

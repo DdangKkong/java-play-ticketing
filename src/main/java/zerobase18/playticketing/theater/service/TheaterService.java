@@ -3,14 +3,14 @@ package zerobase18.playticketing.theater.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zerobase18.playticketing.seller.entity.Seller;
+import zerobase18.playticketing.seller.repository.SellerRepository;
 import zerobase18.playticketing.theater.dto.CreateTheater;
 import zerobase18.playticketing.theater.dto.TheaterDto;
 import zerobase18.playticketing.theater.dto.UpdateTheater;
 import zerobase18.playticketing.theater.entity.Seat;
-import zerobase18.playticketing.theater.entity.Seller;
 import zerobase18.playticketing.theater.entity.Theater;
 import zerobase18.playticketing.theater.repository.SeatRepository;
-import zerobase18.playticketing.theater.repository.SellerRepository;
 import zerobase18.playticketing.theater.repository.TheaterRepository;
 
 import java.time.LocalDateTime;
