@@ -12,7 +12,7 @@ import zerobase18.playticketing.payment.entity.Reservation;
 @NoArgsConstructor
 public class ReservationDto {
 
-    private int reserId;        // 예약 고유번호
+    private int reserId;            // 예약 고유번호
     private int customerId;         // 고객 고유번호
     private String reserStat;       // 예약상태
     private int reserAmount;        // 예약금액
