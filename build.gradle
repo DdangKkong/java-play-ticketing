@@ -34,10 +34,15 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+
+	// Bean Validation (ex. @NotNull)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation group:'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
+
 
 
 }
