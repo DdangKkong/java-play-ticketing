@@ -11,6 +11,9 @@ import zerobase18.playticketing.customer.dto.CustomerDto;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.customer.service.CustomerService;
+import zerobase18.playticketing.global.exception.CustomException;
+
+import static zerobase18.playticketing.global.type.ErrorCode.ALREADY_USE_LOGIN_ID;
 
 @AllArgsConstructor
 @Service
@@ -30,7 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
         boolean exists = customerRepository.existsByLoginId(user.getLoginId());
 
         if (exists) {
-            throw new RuntimeException("이미 존재하는 아이디입니다.");
+            throw new CustomException(ALREADY_USE_LOGIN_ID);
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
