@@ -20,6 +20,7 @@ import zerobase18.playticketing.payment.entity.Reservation;
 import zerobase18.playticketing.payment.repository.PaymentRepository;
 import zerobase18.playticketing.payment.repository.ReservationRepository;
 import zerobase18.playticketing.payment.type.KakaoConstants;
+import zerobase18.playticketing.payment.type.ReserStat;
 import zerobase18.playticketing.payment.type.TossConstants;
 
 import java.nio.charset.StandardCharsets;
@@ -73,6 +74,9 @@ public class PaymentService {
         // 결제할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(reserId)
                 .orElseThrow(()-> new RuntimeException());
+
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
 
         // 예약 상태를 예약 완료로 변경
         reservation.successReser();
@@ -140,6 +144,9 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(tossApproveRequestDto.getReserId())
                 .orElseThrow(()->new RuntimeException()); // 해당 예약이 존재하지 않습니다
 
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
+
         // 예약 상태를 예약 완료로 변경
         reservation.successReser();
 
@@ -155,6 +162,20 @@ public class PaymentService {
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));
 
+    }
+
+    // 예약 신청이어야만 결제 가능
+    private void paymentPossible(Reservation reservation) {
+        if (reservation.getReserStat() != ReserStat.APPLY){
+            throw new RuntimeException();
+        }
+    }
+
+    // 예약 성공이어야만 결제 취소 가능
+    private void paymentCancelPossible(Reservation reservation) {
+        if (reservation.getReserStat() != ReserStat.SUCCESS){
+            throw new RuntimeException();
+        }
     }
 
 
@@ -190,6 +211,9 @@ public class PaymentService {
         // 결제 취소할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(kakaoCancelRequestDto.getReserId())
                 .orElseThrow(()-> new RuntimeException());
+
+        // 예약 성공이어야만 결제 취소 가능
+        paymentCancelPossible(reservation);
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
@@ -246,6 +270,9 @@ public class PaymentService {
         // 결제 취소할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(tossCancelRequestDto.getReserId())
                 .orElseThrow(()-> new RuntimeException()); // 해당 예약 정보가 없습니다
+
+        // 예약 성공이어야만 결제 취소 가능
+        paymentCancelPossible(reservation);
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
