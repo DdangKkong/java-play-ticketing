@@ -2,6 +2,7 @@ package zerobase18.playticketing.play.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import zerobase18.playticketing.payment.entity.Reservation;
 import zerobase18.playticketing.theater.entity.Seat;
 
 @Entity
@@ -10,16 +11,12 @@ import zerobase18.playticketing.theater.entity.Seat;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScheduleAndSeat {
+public class ScheduleSeat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "scheduleAndSeat_id")
     private int id;
-
-    // 좌석 예약 가능 여부
-    @Column(name = "seatYN")
-    private boolean seatYN;
 
     // 스케줄 고유번호
     @ManyToOne
@@ -30,5 +27,10 @@ public class ScheduleAndSeat {
     @ManyToOne
     @JoinColumn(name = "seat_id")
     private Seat seat;
+
+    // 예약 고유번호
+    @ManyToOne
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
 
 }

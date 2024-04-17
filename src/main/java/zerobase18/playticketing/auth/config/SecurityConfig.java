@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -47,6 +46,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(AUTH).permitAll()
                 // @PreAuthorization 사용할 것이기 때문에 모든 경로에 대한 인증 처리 생략
+//                .requestMatchers("/theaters/**").hasRole("SELLER")
                 .anyRequest().permitAll());
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);

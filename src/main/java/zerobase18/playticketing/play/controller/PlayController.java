@@ -15,7 +15,7 @@ import java.text.ParseException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/theater/play")
+@RequestMapping("/theaters/plays")
 public class PlayController {
 
     private final PlayService playService;

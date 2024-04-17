@@ -29,7 +29,7 @@ public enum ErrorCode {
     THEATER_NOT_FOUND(HttpStatus.BAD_REQUEST, "극장을 찾을 수 없습니다."),
     SCHEDULE_DATE_INVALID(HttpStatus.BAD_REQUEST, "잘못된 연극 스케줄의 날짜입니다."),
     SCHEDULE_TIME_INVALID(HttpStatus.BAD_REQUEST, "잘못된 연극 스케줄의 시간입니다."),
-
+    THEATER_CONNECT_DENIED(HttpStatus.FORBIDDEN, "접근할 수 없는 극장 정보입니다.")
 
 
 

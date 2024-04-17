@@ -15,6 +15,8 @@ public class CreatePlay {
     public static class Request {
 
         @NotNull
+        private int sellerId;
+        @NotNull
         private int theaterId;
         @NotBlank
         private String playName;
@@ -68,7 +70,7 @@ public class CreatePlay {
         private String actors;
         private boolean reservationYN;
         private List<Schedule> scheduleList;
-        private boolean scheduleSeatYN;
+        private boolean scheduleAndSeatYN;
 
         public static Response fromDto(PlayDto playDto){
             return Response.builder()
@@ -85,7 +87,7 @@ public class CreatePlay {
                     .actors(playDto.getActors())
                     .reservationYN(playDto.isReservationYN())
                     .scheduleList(playDto.getScheduleList())
-                    .scheduleSeatYN(playDto.isScheduleSeatYN())
+                    .scheduleAndSeatYN(playDto.isScheduleSeatYN())
                     .build();
         }
 

@@ -65,8 +65,6 @@ public class PlayDto {
 
     // 연극 스케줄별 좌석 여부
     private boolean scheduleSeatYN;
-
-
     public static PlayDto fromEntity(Play play){
         return PlayDto.builder()
                 .playId(play.getId())
