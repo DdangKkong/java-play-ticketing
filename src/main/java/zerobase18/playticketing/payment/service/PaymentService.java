@@ -84,7 +84,7 @@ public class PaymentService {
         Payment payment = Payment.fromKakaoApproveDto(kakaoApproveResponseDto);
 
         // 결제 정보에 예약 고유번호 설정
-        payment.addReserId(reserId);
+        payment.addReserId(reservation);
 
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));
@@ -150,7 +150,7 @@ public class PaymentService {
         Payment payment = Payment.fromTossDto(tossApproveResponseDto);
 
         // 결제 정보에 예약 고유번호 설정
-        payment.addReserId(tossApproveRequestDto.getReserId());
+        payment.addReserId(reservation);
 
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));

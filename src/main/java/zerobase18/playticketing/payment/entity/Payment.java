@@ -21,8 +21,9 @@ public class Payment {
     @Column(name = "payment_id")
     private int paymentId;              // 결제정보 고유번호
 
-    @Column(name = "reser_id")
-    private int reserId;                // 예약 고유번호
+    @ManyToOne
+    @JoinColumn(name = "reser_id")
+    private Reservation reserId;        // 예약 고유번호
 
     @Column(name = "tid_payment_key")
     private String tidPaymentKey;       // 결제 고유번호
@@ -46,7 +47,7 @@ public class Payment {
     private String cancelReason;        // 결제 취소 사유
 
     // 예약 고유번호 설정
-    public void addReserId(int reserId){
+    public void addReserId(Reservation reserId){
         this.reserId = reserId;
     }
 
