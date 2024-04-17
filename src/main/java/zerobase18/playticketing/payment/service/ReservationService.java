@@ -20,7 +20,7 @@ public class ReservationService {
         Reservation reservation = Reservation.fromDto(reservationDto);
 
         // 예약 신청 설정
-        //reservation.applyReser();
+        reservation.applyReser();
 
         // 예약 정보 저장
         Reservation savedReservation = reservationRepository.save(reservation);
