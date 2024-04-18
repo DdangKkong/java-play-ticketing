@@ -47,7 +47,7 @@ public class TheaterDto {
     public static TheaterDto fromEntity(Theater theater) {
         return TheaterDto.builder()
                 .theaterId(theater.getId())
-                .sellerId(theater.getSeller().getId())
+                .sellerId(theater.getSeller().getSellerId())
                 .theaterName(theater.getTheaterName())
                 .theaterAdress(theater.getTheaterAdress())
                 .seatTotalCount(theater.getSeatTotalCount())

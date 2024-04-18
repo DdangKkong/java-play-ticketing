@@ -12,13 +12,13 @@ import zerobase18.playticketing.payment.service.PaymentService;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/payment")
+@RequestMapping("/payment/toss")
 public class TossPaymentController {
 
     private final PaymentService paymentService;
 
     // 토스 페이먼츠 결제 요청
-    @GetMapping("/toss")
+    @GetMapping
     public String tossPaymentRequest(@RequestParam int reserAmount, @RequestParam String orderId,
                                      @RequestParam int reserId){
         log.info("tossPaymentRequest!");
@@ -30,7 +30,7 @@ public class TossPaymentController {
     }
 
     // 토스 페이먼츠 결제 요청 성공
-    @GetMapping("/toss/success")
+    @GetMapping("/success")
     public String tossPaymentRequestSuccess(@RequestParam String paymentType, @RequestParam String orderId,
                                             @RequestParam String paymentKey, @RequestParam int amount,
                                             @RequestParam int reserId){
@@ -44,7 +44,7 @@ public class TossPaymentController {
     }
 
     // 토스 페이먼츠 결제 승인
-    @PostMapping("/toss/confirm")
+    @PostMapping("/confirm")
     public ResponseEntity tossPaymentApprove(@RequestBody TossApproveRequestDto tossApproveRequestDto){
         log.info("[Controller] tossPaymentApprove!");
         log.info("orderId : {}",tossApproveRequestDto.getOrderId());
@@ -52,13 +52,13 @@ public class TossPaymentController {
     }
 
     // 토스 페이먼츠 결제 취소
-    @GetMapping("/toss/cancel")
+    @GetMapping("/cancel")
     public ResponseEntity tossPaymentCancel(@RequestBody TossCancelRequestDto tossCancelRequestDto){
         log.info("[Controller] tossPaymentCancel!");
         return ResponseEntity.ok().body(paymentService.tossPaymentCancel(tossCancelRequestDto));
     }
 
-    @GetMapping("/toss/order")
+    @GetMapping("/order")
     public ResponseEntity tossPaymentOrder(@RequestParam String paymentKey){
         log.info("[Controller] tossPaymentOrder!");
         return ResponseEntity.ok().body(paymentService.tossPaymentOrder(paymentKey));

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import zerobase18.playticketing.payment.dto.kakao.KakaoApproveResponseDto;
+import zerobase18.playticketing.payment.dto.kakao.KakaoCancelResponseDto;
 import zerobase18.playticketing.payment.dto.toss.TossApproveResponseDto;
 
 @Entity
@@ -19,8 +21,9 @@ public class Payment {
     @Column(name = "payment_id")
     private int paymentId;              // 결제정보 고유번호
 
-    @Column(name = "reser_id")
-    private int reserId;                // 예약 고유번호
+    @ManyToOne
+    @JoinColumn(name = "reser_id")
+    private Reservation reserId;        // 예약 고유번호
 
     @Column(name = "tid_payment_key")
     private String tidPaymentKey;       // 결제 고유번호
@@ -42,6 +45,11 @@ public class Payment {
 
     @Column(name = "cancel_reason")
     private String cancelReason;        // 결제 취소 사유
+
+    // 예약 고유번호 설정
+    public void addReserId(Reservation reserId){
+        this.reserId = reserId;
+    }
 
     // 취소 일시, 취소 사유 설정
     public void cancel(String canceledAt,String cancelReason){
@@ -67,6 +75,23 @@ public class Payment {
                 .requestAt(tossApproveResponseDto.getApprovedAt())
                 .canceledAt(canceledAt)
                 .cancelReason(cancelReason)
+                .build();
+    }
+
+    public static Payment fromKakaoApproveDto(KakaoApproveResponseDto kakaoApproveResponseDto){
+        return Payment.builder()
+                .tidPaymentKey(kakaoApproveResponseDto.getTid())
+                .orderName(kakaoApproveResponseDto.getItem_name())
+                .method(kakaoApproveResponseDto.getPayment_method_type())
+                .totalAmount(kakaoApproveResponseDto.getAmount().getTotal())
+                .requestAt(kakaoApproveResponseDto.getApproved_at().toString())
+                .build();
+    }
+
+    public static Payment fromKakaoCancelDto(KakaoCancelResponseDto kakaoCancelResponseDto){
+        return Payment.builder()
+                .canceledAt(kakaoCancelResponseDto.getCanceled_at().toString())
+                .cancelReason(kakaoCancelResponseDto.getPayload())
                 .build();
     }
 

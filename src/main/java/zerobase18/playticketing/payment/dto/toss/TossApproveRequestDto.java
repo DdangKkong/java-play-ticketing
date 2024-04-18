@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class TossApproveRequestDto {
 
     private String paymentKey;      // 결제의 키 값
+    private int reserId;            // 예약 고유번호
     private String orderId;         // 주문번호
     private int amount;             // 결제할 금액
 
