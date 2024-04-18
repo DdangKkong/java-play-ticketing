@@ -25,7 +25,7 @@ public class PaymentDto {
     public static PaymentDto fromEntity(Payment payment){
         return PaymentDto.builder()
                 .paymentId(payment.getPaymentId())
-                .reserId(payment.getReserId())
+                .reserId(payment.getReserId().getReserId())
                 .tidPaymentKey(payment.getTidPaymentKey())
                 .orderName(payment.getOrderName())
                 .method(payment.getMethod())

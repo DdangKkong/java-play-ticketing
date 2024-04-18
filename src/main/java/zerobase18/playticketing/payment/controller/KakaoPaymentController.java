@@ -3,12 +3,13 @@ package zerobase18.playticketing.payment.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import zerobase18.playticketing.payment.dto.PaymentDto;
 import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.service.PaymentService;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/payment")
+@RequestMapping("/payment/kakao")
 public class KakaoPaymentController {
 
     private final PaymentService paymentService;
@@ -22,14 +23,14 @@ public class KakaoPaymentController {
 
     // 카카오 페이 결제 승인
     @GetMapping("/success")
-    public KakaoApproveResponseDto kakaoPaymentApprove(@RequestParam String pg_token){
+    public PaymentDto kakaoPaymentApprove(@RequestParam int reserId, @RequestParam String pg_token){
         log.info("[Controller] kakaoPaymentApprove!");
-        return paymentService.kakaoPaymentApprove(pg_token);
+        return paymentService.kakaoPaymentApprove(reserId,pg_token);
     }
 
     // 카카오 페이 결제 취소
     @GetMapping("/cancel")
-    public KakaoCancelResponseDto kakaoPaymentCancel(@RequestBody KakaoCancelRequestDto kakaoCancelRequestDto){
+    public PaymentDto kakaoPaymentCancel(@RequestBody KakaoCancelRequestDto kakaoCancelRequestDto){
         log.info("[Controller] kakaoPaymentCancel!");
         return paymentService.kakaoPaymentCancel(kakaoCancelRequestDto);
     }
