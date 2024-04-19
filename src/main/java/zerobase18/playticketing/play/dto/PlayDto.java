@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import zerobase18.playticketing.play.entity.Play;
 import zerobase18.playticketing.play.entity.Schedule;
+import zerobase18.playticketing.play.entity.ScheduleSeat;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -63,8 +64,12 @@ public class PlayDto {
     // 연극 스케줄 리스트
     private List<Schedule> scheduleList;
 
+    // 연극 스케줄별 좌석 리스트
+    private List<ScheduleSeat> scheduleSeats;
+
     // 연극 스케줄별 좌석 여부
     private boolean scheduleSeatYN;
+
     public static PlayDto fromEntity(Play play){
         return PlayDto.builder()
                 .playId(play.getId())

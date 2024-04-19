@@ -6,6 +6,7 @@ import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.global.type.ErrorCode;
 import zerobase18.playticketing.play.dto.CreatePlay;
 import zerobase18.playticketing.play.dto.PlayDto;
+import zerobase18.playticketing.play.dto.UpdatePlay;
 import zerobase18.playticketing.play.entity.Play;
 import zerobase18.playticketing.play.entity.Schedule;
 import zerobase18.playticketing.play.entity.ScheduleSeat;
@@ -47,6 +48,11 @@ public class PlayService {
     private Seller findSeller(int sellerId) {
         return sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    private Play findPlay(int playId) {
+        return playRepository.findById(playId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAY_NOT_FOUND));
     }
 
     // 연극스케줄 생성
@@ -168,6 +174,112 @@ public class PlayService {
         playDto.setScheduleList(scheduleList);
         playDto.setScheduleSeatYN(scheduleSeatYN);
         return playDto;
+    }
+
+    // 연극, 연극스케줄, 연극스케줄 별 좌석 조회
+    public PlayDto readPlay(int sellerId, int playId) {
+        Seller seller = findSeller(sellerId);
+        Play play = findPlay(playId);
+
+        // 연극을 등록한 연극 업체인지 확인
+
+
+
+
+        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
+        List<ScheduleSeat> scheduleSeats = new ArrayList<>();
+        for (int i = 0; i < scheduleList.size(); i++) {
+            Schedule schedule = scheduleList.get(i);
+            List<ScheduleSeat> seatList = scheduleSeatRepository.findAllBySchedule(schedule);
+            scheduleSeats.addAll(seatList);
+        }
+
+        PlayDto playDto = PlayDto.fromEntity(play);
+        playDto.setScheduleList(scheduleList);
+        playDto.setScheduleSeats(scheduleSeats);
+        return playDto;
+    }
+
+    // 연극, 연극스케줄, 연극스케줄 별 좌석 수정
+    public PlayDto updatePlay(UpdatePlay.Request request) throws ParseException {
+        Play play = findPlay(request.getPlayId());
+        Seller seller = findSeller(request.getSellerId());
+        Theater theater = findTheater(request.getTheaterId());
+
+        // 연극을 등록한 연극 업체인지 확인
+
+
+
+        // 정보 수정, 스케줄과 스케줄 별 좌석은 모두 삭제 후 재생성
+        play.setPlayName(request.getPlayName());
+        play.setPlayDetails(request.getPlayDetails());
+        play.setPosterUrl(request.getPosterUrl());
+        play.setRatings(request.getRatings());
+        play.setPlayGenre(request.getPlayGenre());
+        play.setPlayStartDate(request.getPlayStartDate());
+        play.setPlayEndDate(request.getPlayEndDate());
+        play.setRuntime(request.getRuntime());
+        play.setActors(request.getActors());
+        play.setReservationYN(request.isReservationYN());
+        play.setTheater(theater);
+        // 수정 시간 넣기
+        LocalDateTime now = LocalDateTime.now();
+        // DateTimeFormatter를 사용하여 날짜와 시간 형식을 포맷
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+        // 타입을 LocalDateTime 으로
+        LocalDateTime updatedAt = LocalDateTime.parse(formattedNow, formatter);
+        // 다시 저장
+        play.setUpdatedAt(updatedAt);
+        playRepository.save(play);
+
+        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
+        // 좌석 삭제
+        for (int i = 0; i < scheduleList.size(); i++) {
+            scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
+        }
+        // 스케줄 삭제
+        scheduleRepository.deleteAllByPlay(play);
+        // 스케줄 재생성
+        List<Schedule> schedules = createSchedule(play, request.getSchedule());
+        // 연극스케줄 별 좌석 재생성
+        boolean scheduleSeatYN = createScheduleSeat(theater, scheduleList);
+        // playDto 에 넣어주기
+        PlayDto playDto = PlayDto.fromEntity(play);
+        playDto.setScheduleList(schedules);
+        playDto.setScheduleSeatYN(scheduleSeatYN);
+        return playDto;
+    }
+
+    // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
+    // (스케줄과 스케줄 별 좌석은 삭제하고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
+    public PlayDto deletePlay(int sellerId, int playId) {
+        Play play = findPlay(playId);
+        Seller seller = findSeller(sellerId);
+
+        // 연극을 등록한 연극 업체인지 확인
+
+
+        // 삭제 시간 넣기
+        LocalDateTime now = LocalDateTime.now();
+        // DateTimeFormatter를 사용하여 날짜와 시간 형식을 포맷
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedNow = now.format(formatter);
+        // 타입을 LocalDateTime 으로
+        LocalDateTime deletedAt = LocalDateTime.parse(formattedNow, formatter);
+        // 다시 저장
+        play.setDeletedAt(deletedAt);
+        playRepository.save(play);
+
+        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
+        // 좌석 삭제
+        for (int i = 0; i < scheduleList.size(); i++) {
+            scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
+        }
+        // 스케줄 삭제
+        scheduleRepository.deleteAllByPlay(play);
+        // playDto 생성
+        return PlayDto.fromEntity(play);
     }
 
 }

@@ -9,11 +9,13 @@ import zerobase18.playticketing.play.entity.Schedule;
 import java.util.Date;
 import java.util.List;
 
-public class CreatePlay {
+public class UpdatePlay {
 
     @Getter
     public static class Request {
 
+        @NotNull
+        private int playId;
         @NotNull
         private int sellerId;
         @NotNull
