@@ -37,6 +37,9 @@ public class Payment {
     @Column(name = "total_amount")
     private int totalAmount;            // 결제 금액
 
+    @Column(name = "refundable_amount")
+    private int refundableAmount;       // 결제 취소 후 환불 가능한 잔액
+
     @Column(name = "request_at")
     private String requestAt;           // 결제 일시
 
@@ -52,19 +55,22 @@ public class Payment {
     }
 
     // 취소 일시, 취소 사유 설정
-    public void cancel(String canceledAt,String cancelReason){
+    public void cancel(String canceledAt,String cancelReason,int refundableAmount){
         this.canceledAt = canceledAt;
         this.cancelReason = cancelReason;
+        this.refundableAmount = refundableAmount;
 
     }
 
     public static Payment fromTossDto(TossApproveResponseDto tossApproveResponseDto){
         String canceledAt = null;
         String cancelReason = null;
+        int refundableAmount = 0;
         // 토스 결제 취소 응답일 경우 (=결제 취소 이력이 있을경우)
         if (tossApproveResponseDto.getCancels() != null) {
             canceledAt = tossApproveResponseDto.getCancels()[0].getCanceledAt();
             cancelReason = tossApproveResponseDto.getCancels()[0].getCancelReason();
+            refundableAmount = tossApproveResponseDto.getCancels()[0].getRefundableAmount();
         }
 
         return Payment.builder()
@@ -75,6 +81,7 @@ public class Payment {
                 .requestAt(tossApproveResponseDto.getApprovedAt())
                 .canceledAt(canceledAt)
                 .cancelReason(cancelReason)
+                .refundableAmount(refundableAmount)
                 .build();
     }
 
@@ -92,6 +99,7 @@ public class Payment {
         return Payment.builder()
                 .canceledAt(kakaoCancelResponseDto.getCanceled_at().toString())
                 .cancelReason(kakaoCancelResponseDto.getPayload())
+                .refundableAmount(kakaoCancelResponseDto.getCancel_available_amount().getTotal())
                 .build();
     }
 

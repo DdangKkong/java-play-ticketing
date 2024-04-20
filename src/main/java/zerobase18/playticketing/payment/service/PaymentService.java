@@ -171,14 +171,6 @@ public class PaymentService {
         }
     }
 
-    // 예약 성공이어야만 결제 취소 가능
-    private void paymentCancelPossible(Reservation reservation) {
-        if (reservation.getReserStat() != ReserStat.SUCCESS){
-            throw new RuntimeException();
-        }
-    }
-
-
     // 토스 페이먼츠 결제 승인 응답
     private TossApproveResponseDto tossPaymentAccept(TossApproveRequestDto tossApproveRequestDto) {
         JSONObject jsonObject = new JSONObject();
@@ -203,7 +195,6 @@ public class PaymentService {
                 tossApproveRequest, TossApproveResponseDto.class);
     }
 
-
     // 카카오페이 결제 취소
     @Transactional
     public PaymentDto kakaoPaymentCancel(KakaoCancelRequestDto kakaoCancelRequestDto){
@@ -212,15 +203,15 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(kakaoCancelRequestDto.getReserId())
                 .orElseThrow(()-> new RuntimeException());
 
-        // 예약 성공이어야만 결제 취소 가능
-        paymentCancelPossible(reservation);
+        // 취소할 결제 정보 조회
+        Payment payment = paymentRepository.findByTidPaymentKey(kakaoCancelRequestDto.getTid())
+                .orElseThrow(()-> new RuntimeException());
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
 
-        // 취소할 결제 정보 조회
-        Payment payment = paymentRepository.findById(kakaoCancelRequestDto.getPaymentId())
-                .orElseThrow(()-> new RuntimeException());
+        // 환불 금액 설정
+        kakaoCancelRequestDto.setCancel_amount(reservation.getCancelAmount());
 
         // 카카오 결제 취소 응답
         KakaoCancelResponseDto kakaoCancelResponseDto = kakaoPaymentCancelAccept(kakaoCancelRequestDto);
@@ -228,8 +219,9 @@ public class PaymentService {
         //응답값 변환
         Payment cancelPayment = Payment.fromKakaoCancelDto(kakaoCancelResponseDto);
 
-        // 취소 일시, 취소 사유 설정
-        payment.cancel(cancelPayment.getCanceledAt(), cancelPayment.getCancelReason());
+        // 취소 일시, 취소 사유, 환불 가능 금액 설정
+        payment.cancel(cancelPayment.getCanceledAt(), cancelPayment.getCancelReason(),
+                cancelPayment.getRefundableAmount());
 
         // 결제 취소 정보 저장
         return PaymentDto.fromEntity(payment);
@@ -271,15 +263,15 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(tossCancelRequestDto.getReserId())
                 .orElseThrow(()-> new RuntimeException()); // 해당 예약 정보가 없습니다
 
-        // 예약 성공이어야만 결제 취소 가능
-        paymentCancelPossible(reservation);
+        // 취소할 결제 정보 조회
+        Payment payment = paymentRepository.findByTidPaymentKey(tossCancelRequestDto.getPaymentKey())
+                .orElseThrow(()->new RuntimeException()); // 해당 결제 정보가 없습니다
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
 
-        // 취소할 결제 정보 조회
-        Payment payment = paymentRepository.findById(tossCancelRequestDto.getPaymentId())
-                .orElseThrow(()->new RuntimeException()); // 해당 결제 정보가 없습니다
+        // 환불 금액 설정
+        tossCancelRequestDto.setCancelAmount(reservation.getCancelAmount());
 
         // 토스 결제 취소 응답
         TossApproveResponseDto tossCancelResponseDto = tossPaymentCancelAccept(tossCancelRequestDto);
@@ -287,18 +279,19 @@ public class PaymentService {
         // 응답값 변환
         Payment cancelPayment = Payment.fromTossDto(tossCancelResponseDto);
 
-        // 취소 일시, 취소 사유 설정
-        payment.cancel(cancelPayment.getCanceledAt(),cancelPayment.getCancelReason());
+        // 취소 일시, 취소 사유, 환불 가능 금액 설정
+        payment.cancel(cancelPayment.getCanceledAt(),cancelPayment.getCancelReason(),
+                cancelPayment.getRefundableAmount());
 
         // 결제 취소 정보 저장
         return PaymentDto.fromEntity(payment);
     }
 
-
     // 토스 페이먼츠 결제 취소 응답
     private TossApproveResponseDto tossPaymentCancelAccept(TossCancelRequestDto tossCancelRequestDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cancelReason", tossCancelRequestDto.getCancelReason());
+        jsonObject.put("cancelAmount", tossCancelRequestDto.getCancelAmount());
 
         // 가상계좌 결제 취소시 필수 값 세팅
         if (tossCancelRequestDto.getRefundReceiveAccount() != null) {

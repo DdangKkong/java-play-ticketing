@@ -22,4 +22,18 @@ public class ReservationController {
         return reservationService.applyReservation(reservationDto);
     }
 
+    // 예약 취소 (결제된 예약)
+    @PostMapping("/cancel")
+    public ReservationDto cancelPaymentReservation(@RequestParam int reserId){
+        log.info("cancelPaymentReservation!");
+        return reservationService.cancelPaymentReservation(reserId);
+    }
+
+    // 예약 취소 (결제되지 않은 예약)
+    @DeleteMapping("/cancel")
+    public ReservationDto cancelApplyReservation(@RequestParam int reserId){
+        log.info("cancelApplyReservation!");
+        return reservationService.cancelApplyReservation(reserId);
+    }
+
 }
