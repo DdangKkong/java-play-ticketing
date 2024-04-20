@@ -4,7 +4,6 @@ package zerobase18.playticketing.auth.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import zerobase18.playticketing.seller.dto.SellerDto;
 import zerobase18.playticketing.troupe.dto.TroupeDto;
 
 @Data

@@ -1,12 +1,14 @@
-package zerobase18.playticketing.seller.entity;
+package zerobase18.playticketing.company.entity;
 
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.global.entity.BaseEntity;
 
@@ -19,11 +21,11 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Seller extends BaseEntity implements UserDetails {
+public class Company extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer sellerId;
+    private Integer companyId;
 
     @NotNull
     @Column(unique = true)
@@ -35,6 +37,10 @@ public class Seller extends BaseEntity implements UserDetails {
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private UserState userState;
 
     @NotNull
     private String name;
@@ -51,10 +57,13 @@ public class Seller extends BaseEntity implements UserDetails {
     @NotNull
     private String address;
 
+    @LastModifiedDate
+    private String unRegisteredAt;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_SELLER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_COMPANY"));
     }
 
     @Override

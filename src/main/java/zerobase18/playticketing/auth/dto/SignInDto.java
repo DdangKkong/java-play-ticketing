@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class SellerSignInDto {
+public class SignInDto {
 
     @Column(unique = true)
     @NotNull

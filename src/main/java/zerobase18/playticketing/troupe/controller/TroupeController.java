@@ -7,11 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import zerobase18.playticketing.auth.dto.TroupeSignInDto;
+import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.dto.TroupeSignUpDto;
 import zerobase18.playticketing.auth.security.TokenProvider;
 import zerobase18.playticketing.auth.service.AuthService;
-import zerobase18.playticketing.customer.dto.DeleteCustomer;
 import zerobase18.playticketing.troupe.dto.DeleteTroupe;
 import zerobase18.playticketing.troupe.dto.SearchTroupe;
 import zerobase18.playticketing.troupe.dto.TroupeInfo;
@@ -49,7 +48,7 @@ public class TroupeController {
      * 로그인
      */
     @PostMapping("/signin")
-    public ResponseEntity<?> sellerSignIn(@RequestBody @Valid TroupeSignInDto sign) {
+    public ResponseEntity<?> sellerSignIn(@RequestBody @Valid SignInDto sign) {
 
         Troupe troupe = authService.authenticatedTroupe(sign);
 

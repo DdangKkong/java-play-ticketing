@@ -7,11 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import zerobase18.playticketing.auth.dto.CustomerSignInDto;
 import zerobase18.playticketing.auth.dto.CustomerSignUpDto;
+import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.security.TokenProvider;
 import zerobase18.playticketing.auth.service.AuthService;
-import zerobase18.playticketing.customer.dto.*;
+import zerobase18.playticketing.customer.dto.CustomerInfo;
+import zerobase18.playticketing.customer.dto.DeleteCustomer;
+import zerobase18.playticketing.customer.dto.SearchCustomer;
+import zerobase18.playticketing.customer.dto.UpdateCustomerDto;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.service.CustomerService;
 
@@ -43,7 +46,7 @@ public class CustomerController {
      * 고객 로그인
      */
     @PostMapping("/signin")
-    public ResponseEntity<?> customerSignIn(@RequestBody @Valid CustomerSignInDto sign) {
+    public ResponseEntity<?> customerSignIn(@RequestBody @Valid SignInDto sign) {
 
         Customer customer = authService.authenticatedCustomer(sign);
 

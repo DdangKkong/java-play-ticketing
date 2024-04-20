@@ -10,16 +10,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase18.playticketing.auth.dto.CustomerSignInDto;
-import zerobase18.playticketing.auth.dto.SellerSignInDto;
-import zerobase18.playticketing.auth.dto.TroupeSignInDto;
+import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
+import zerobase18.playticketing.company.entity.Company;
+import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.global.exception.CustomException;
-import zerobase18.playticketing.seller.entity.Seller;
-import zerobase18.playticketing.seller.repository.SellerRepository;
 import zerobase18.playticketing.troupe.entity.Troupe;
 import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
@@ -34,14 +32,14 @@ public class AuthService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
 
-    private final SellerRepository sellerRepository;
+    private final CompanyRepository companyRepository;
 
     private final TroupeRepository troupeRepository;
 
     private final PasswordEncoder passwordEncoder;
 
 
-    public Customer authenticatedCustomer(CustomerSignInDto sign) {
+    public Customer authenticatedCustomer(SignInDto sign) {
         Customer customer = checkCustomerLogInId(sign.getLoginId());
 
         validationState(customer.getUserState());
@@ -51,17 +49,19 @@ public class AuthService implements UserDetailsService {
         return customer;
     }
 
-    public Seller authenticatedSeller(SellerSignInDto sign) {
-        Seller seller = checkSellerLogInId(sign.getLoginId());
+    public Company authenticatedCompany(SignInDto sign) {
+        Company company = checkSellerLogInId(sign.getLoginId());
 
 
-        validationPassword(sign.getPassword(), seller.getPassword());
+        validationState(company.getUserState());
+
+        validationPassword(sign.getPassword(), company.getPassword());
 
 
-        return seller;
+        return company;
     }
 
-    public Troupe authenticatedTroupe(TroupeSignInDto sign) {
+    public Troupe authenticatedTroupe(SignInDto sign) {
         Troupe troupe = checkTroupeLogInId(sign.getLoginId());
 
         validationState(troupe.getUserState());
@@ -85,11 +85,11 @@ public class AuthService implements UserDetailsService {
 
             return createUserDetail(customer.getLoginId(), customer.getPassword(), CUSTOMER);
 
-        } else if (sellerRepository.existsByLoginId(loginId)) {
+        } else if (companyRepository.existsByLoginId(loginId)) {
 
-            Seller seller = checkSellerLogInId(loginId);
+            Company company = checkSellerLogInId(loginId);
 
-            return createUserDetail(seller.getLoginId(), seller.getPassword(), SELLER);
+            return createUserDetail(company.getLoginId(), company.getPassword(), COMPANY);
 
         } else if (troupeRepository.existsByLoginId(loginId)) {
 
@@ -117,8 +117,8 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
-    private Seller checkSellerLogInId(String loginId) {
-        return sellerRepository.findByLoginId(loginId)
+    private Company checkSellerLogInId(String loginId) {
+        return companyRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
