@@ -1,4 +1,4 @@
-package zerobase18.playticketing.customer.entity;
+package zerobase18.playticketing.troupe.entity;
 
 
 import jakarta.persistence.*;
@@ -13,28 +13,29 @@ import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.global.entity.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class Customer extends BaseEntity implements UserDetails {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Troupe extends BaseEntity implements UserDetails {
 
-    // 고객 고유 번호
+    // 연극 업체 고유 번호
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer customerId;
+    private Integer troupeId;
 
-    // 고객 로그인 아이디
+    // 연극 업체 로그인 아이디
     @NotNull
     @Column(unique = true)
     private String loginId;
 
-    // 고객 비밀 번호
+    // 연극 업체 비밀 번호
     @NotNull
     private String password;
 
@@ -43,44 +44,42 @@ public class Customer extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserType userType;
 
-    // 사용자 상태
+    // 연극 업체 상태
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserState userState;
 
-    // 고객 이름
+    // 이름
     @NotNull
     private String name;
 
-    // 고객 생년월일
+    // 회사
     @NotNull
-    private String birth;
+    private String company;
 
-    // 고객 휴대폰 번호
+    // 휴대폰 번호
     @NotNull
     private String phone;
 
-    // 고객 이메일
+    // 이메일
     @NotNull
     private String email;
 
-    // 고객 주소
+    // 주소
     @NotNull
     private String address;
 
-    // 탈퇴 일시
+
+    // 회원 탈퇴 일시
     @LastModifiedDate
     private String unRegisteredAt;
 
 
-
-    // 사용자가 가지고 있는 권한 목록 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_CUSTOMER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_TROUPE"));
     }
 
-    // 사용자를 식별할 수 있는 사용자 이름 반환.
     @Override
     public String getUsername() {
         return this.name;
@@ -105,4 +104,8 @@ public class Customer extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
+
+
+
 }

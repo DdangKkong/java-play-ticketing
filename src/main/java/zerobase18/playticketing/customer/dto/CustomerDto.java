@@ -1,8 +1,8 @@
 package zerobase18.playticketing.customer.dto;
 
 import lombok.*;
+import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
-import zerobase18.playticketing.customer.type.CustomerState;
 import zerobase18.playticketing.customer.entity.Customer;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class CustomerDto {
     private UserType userType;
 
     // 고객 상태
-    private CustomerState customerState;
+    private UserState userState;
 
     // 고객 이름
     private String name;
@@ -42,7 +42,7 @@ public class CustomerDto {
     private String address;
 
     // 고객 탈퇴 일시
-    private LocalDateTime unRegisteredAt;
+    private String unRegisteredAt;
 
 
     public static CustomerDto fromEntity(Customer customer) {
@@ -51,7 +51,7 @@ public class CustomerDto {
                 .loginId(customer.getLoginId())
                 .password(customer.getPassword())
                 .userType(customer.getUserType())
-                .customerState(customer.getCustomerState())
+                .userState(customer.getUserState())
                 .name(customer.getName())
                 .birth(customer.getBirth())
                 .phone(customer.getPhone())

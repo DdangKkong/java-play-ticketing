@@ -4,8 +4,6 @@ package zerobase18.playticketing.auth.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import zerobase18.playticketing.auth.type.UserType;
-import zerobase18.playticketing.customer.dto.CustomerDto;
 import zerobase18.playticketing.seller.dto.SellerDto;
 
 @Data

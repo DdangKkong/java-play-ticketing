@@ -9,7 +9,8 @@ import lombok.Getter;
 public enum UserType {
 
     CUSTOMER("ROLE_CUSTOMER"),
-    SELLER("ROLE_SELLER");
+    SELLER("ROLE_SELLER"),
+    TROUPE("ROLE_TROUPE");
 
 
 

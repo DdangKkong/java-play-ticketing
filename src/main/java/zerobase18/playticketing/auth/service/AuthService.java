@@ -12,17 +12,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase18.playticketing.auth.dto.CustomerSignInDto;
 import zerobase18.playticketing.auth.dto.SellerSignInDto;
+import zerobase18.playticketing.auth.dto.TroupeSignInDto;
+import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
-import zerobase18.playticketing.customer.type.CustomerState;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.seller.entity.Seller;
 import zerobase18.playticketing.seller.repository.SellerRepository;
+import zerobase18.playticketing.troupe.entity.Troupe;
+import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
-import static zerobase18.playticketing.auth.type.UserType.CUSTOMER;
-import static zerobase18.playticketing.auth.type.UserType.SELLER;
-import static zerobase18.playticketing.customer.type.CustomerState.UN_REGISTERED;
+import static zerobase18.playticketing.auth.type.UserState.UN_REGISTERED;
+import static zerobase18.playticketing.auth.type.UserType.*;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @Slf4j
@@ -34,29 +36,40 @@ public class AuthService implements UserDetailsService {
 
     private final SellerRepository sellerRepository;
 
+    private final TroupeRepository troupeRepository;
+
     private final PasswordEncoder passwordEncoder;
 
 
     public Customer authenticatedCustomer(CustomerSignInDto sign) {
         Customer customer = checkCustomerLogInId(sign.getLoginId());
 
-        if (customer.getCustomerState().equals(UN_REGISTERED)) {
-            throw new CustomException(UN_REGISTERED_USER);
-        }
+        validationState(customer.getUserState());
 
-        if (!passwordEncoder.matches(sign.getPassword(), customer.getPassword())) {
-            throw new CustomException(PASSWORD_NOT_MATCH);
-        }
+        validationPassword(sign.getPassword(), customer.getPassword());
+
         return customer;
     }
 
     public Seller authenticatedSeller(SellerSignInDto sign) {
         Seller seller = checkSellerLogInId(sign.getLoginId());
 
-        if (!passwordEncoder.matches(sign.getPassword(), seller.getPassword())) {
-            throw new CustomException(PASSWORD_NOT_MATCH);
-        }
+
+        validationPassword(sign.getPassword(), seller.getPassword());
+
+
         return seller;
+    }
+
+    public Troupe authenticatedTroupe(TroupeSignInDto sign) {
+        Troupe troupe = checkTroupeLogInId(sign.getLoginId());
+
+        validationState(troupe.getUserState());
+
+
+        validationPassword(sign.getPassword(), troupe.getPassword());
+
+        return troupe;
     }
 
 
@@ -77,6 +90,12 @@ public class AuthService implements UserDetailsService {
             Seller seller = checkSellerLogInId(loginId);
 
             return createUserDetail(seller.getLoginId(), seller.getPassword(), SELLER);
+
+        } else if (troupeRepository.existsByLoginId(loginId)) {
+
+            Troupe troupe = checkTroupeLogInId(loginId);
+
+            return createUserDetail(troupe.getLoginId(), troupe.getPassword(), TROUPE);
 
         }
 
@@ -101,5 +120,23 @@ public class AuthService implements UserDetailsService {
     private Seller checkSellerLogInId(String loginId) {
         return sellerRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private Troupe checkTroupeLogInId(String loginId) {
+        return troupeRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private void validationState(UserState state) {
+
+        if (state.equals(UN_REGISTERED)) {
+            throw new CustomException(UN_REGISTERED_USER);
+        }
+    }
+
+    private void validationPassword(String password, String checkPassword) {
+        if (!passwordEncoder.matches(password, checkPassword)) {
+            throw new CustomException(PASSWORD_NOT_MATCH);
+        }
     }
 }

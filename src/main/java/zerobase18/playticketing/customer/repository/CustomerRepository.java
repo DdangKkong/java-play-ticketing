@@ -8,7 +8,7 @@ import zerobase18.playticketing.customer.entity.Customer;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
 

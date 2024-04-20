@@ -6,6 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase18.playticketing.auth.dto.CustomerSignUpDto;
+import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.customer.dto.CustomerDto;
 import zerobase18.playticketing.customer.dto.SearchCustomer;
@@ -16,10 +17,11 @@ import zerobase18.playticketing.customer.service.CustomerService;
 import zerobase18.playticketing.global.exception.CustomException;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static zerobase18.playticketing.customer.type.CustomerState.UN_REGISTERED;
+import static zerobase18.playticketing.auth.type.UserState.REGISTERED;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @AllArgsConstructor
@@ -50,6 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .loginId(user.getLoginId())
                 .password(user.getPassword())
                 .userType(UserType.CUSTOMER)
+                .userState(REGISTERED)
                 .name(user.getName())
                 .birth(user.getBirth())
                 .phone(user.getPhone())
@@ -77,9 +80,9 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         customer.setPassword(passwordEncoder.encode(request.getPassword()));
-        customer.setEmail(customer.getEmail());
-        customer.setPhone(customer.getPhone());
-        customer.setEmail(customer.getEmail());
+        customer.setEmail(request.getEmail());
+        customer.setPhone(request.getPhone());
+        customer.setAddress(request.getEmail());
 
         Customer save = customerRepository.save(customer);
 
@@ -126,8 +129,8 @@ public class CustomerServiceImpl implements CustomerService {
 
        validateCustomer(customer);
 
-       customer.setCustomerState(UN_REGISTERED);
-       customer.setUnRegisteredAt(LocalDateTime.parse(customer.getUpdatedAt()));
+       customer.setUserState(UserState.UN_REGISTERED);
+       customer.setUnRegisteredAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
 
        customerRepository.save(customer);
 
@@ -136,7 +139,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private void validateCustomer(Customer customer) {
-        if (customer.getCustomerState().equals(UN_REGISTERED)) {
+        if (customer.getUserState().equals(UserState.UN_REGISTERED)) {
             throw new CustomException(UN_REGISTERED_USER);
         }
     }

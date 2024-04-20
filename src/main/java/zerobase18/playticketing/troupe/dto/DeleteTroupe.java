@@ -1,15 +1,15 @@
-package zerobase18.playticketing.customer.dto;
+package zerobase18.playticketing.troupe.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import zerobase18.playticketing.global.entity.BaseEntity;
+import zerobase18.playticketing.customer.dto.CustomerDto;
 
 import java.time.LocalDateTime;
 
-public class DeleteCustomer {
+public class DeleteTroupe {
 
     @Getter
     @Setter
@@ -38,12 +38,12 @@ public class DeleteCustomer {
         private String unRegisteredAt;
 
 
-        public static Response from(CustomerDto customerDto) {
+        public static Response from(TroupeDto troupeDto) {
 
             return Response.builder()
-                    .loginId(customerDto.getLoginId())
-                    .name(customerDto.getName())
-                    .unRegisteredAt(customerDto.getUnRegisteredAt())
+                    .loginId(troupeDto.getLoginId())
+                    .name(troupeDto.getName())
+                    .unRegisteredAt(troupeDto.getUnRegisteredAt())
                     .build();
         }
 
