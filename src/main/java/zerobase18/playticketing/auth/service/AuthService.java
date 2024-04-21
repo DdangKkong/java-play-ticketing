@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import zerobase18.playticketing.admin.entity.Admin;
+import zerobase18.playticketing.admin.repository.AdminRepository;
 import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
@@ -35,6 +37,8 @@ public class AuthService implements UserDetailsService {
     private final CompanyRepository companyRepository;
 
     private final TroupeRepository troupeRepository;
+
+    private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -72,6 +76,17 @@ public class AuthService implements UserDetailsService {
         return troupe;
     }
 
+    public Admin authenticatedAdmin(SignInDto sign) {
+        Admin admin = checkAdminLogInId(sign.getLoginId());
+
+        validationState(admin.getUserState());
+
+
+        validationPassword(sign.getPassword(), admin.getPassword());
+
+        return admin;
+    }
+
 
 
     @Override
@@ -96,6 +111,12 @@ public class AuthService implements UserDetailsService {
             Troupe troupe = checkTroupeLogInId(loginId);
 
             return createUserDetail(troupe.getLoginId(), troupe.getPassword(), TROUPE);
+
+        } else if (adminRepository.existsByLoginId(loginId)) {
+
+            Admin admin = checkAdminLogInId(loginId);
+
+            return createUserDetail(admin.getLoginId(), admin.getPassword(), ADMIN);
 
         }
 
@@ -124,6 +145,11 @@ public class AuthService implements UserDetailsService {
 
     private Troupe checkTroupeLogInId(String loginId) {
         return troupeRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private Admin checkAdminLogInId(String loginId) {
+        return adminRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 

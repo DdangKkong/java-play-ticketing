@@ -10,7 +10,8 @@ public enum UserType {
 
     CUSTOMER("ROLE_CUSTOMER"),
     COMPANY("ROLE_COMPANY"),
-    TROUPE("ROLE_TROUPE");
+    TROUPE("ROLE_TROUPE"),
+    ADMIN("ROLE_ADMIN");
 
 
 
