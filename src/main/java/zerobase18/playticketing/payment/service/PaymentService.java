@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.payment.dto.PaymentDto;
 import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
@@ -26,6 +27,8 @@ import zerobase18.playticketing.payment.type.TossConstants;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
+
+import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -73,7 +76,7 @@ public class PaymentService {
         log.info("[Service] kakaoPaymentApprove!");
         // 결제할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(reserId)
-                .orElseThrow(()-> new RuntimeException());
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
 
         // 예약 신청이어야만 결제 가능
         paymentPossible(reservation);
@@ -142,7 +145,7 @@ public class PaymentService {
         log.info("[Service] tossPaymentApprove!");
         // 결제할 예약 정보 조회 (결제 요청때 저장한 예약 고유번호)
         Reservation reservation = reservationRepository.findById(tossApproveRequestDto.getReserId())
-                .orElseThrow(()->new RuntimeException()); // 해당 예약이 존재하지 않습니다
+                .orElseThrow(()->new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 존재하지 않습니다.
 
         // 예약 신청이어야만 결제 가능
         paymentPossible(reservation);
@@ -167,7 +170,7 @@ public class PaymentService {
     // 예약 신청이어야만 결제 가능
     private void paymentPossible(Reservation reservation) {
         if (reservation.getReserStat() != ReserStat.APPLY){
-            throw new RuntimeException();
+            throw new CustomException(RESERVATION_NOT_APPLY);
         }
     }
 
@@ -201,11 +204,11 @@ public class PaymentService {
         log.info("[Service] kakaoPaymentCancel!");
         // 결제 취소할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(kakaoCancelRequestDto.getReserId())
-                .orElseThrow(()-> new RuntimeException());
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
 
         // 취소할 결제 정보 조회
         Payment payment = paymentRepository.findByTidPaymentKey(kakaoCancelRequestDto.getTid())
-                .orElseThrow(()-> new RuntimeException());
+                .orElseThrow(()-> new CustomException(PAYMENT_NOT_FOUND));
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
@@ -261,11 +264,11 @@ public class PaymentService {
         log.info("[Service] tossPaymentCancel!");
         // 결제 취소할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(tossCancelRequestDto.getReserId())
-                .orElseThrow(()-> new RuntimeException()); // 해당 예약 정보가 없습니다
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약 정보가 없습니다
 
         // 취소할 결제 정보 조회
         Payment payment = paymentRepository.findByTidPaymentKey(tossCancelRequestDto.getPaymentKey())
-                .orElseThrow(()->new RuntimeException()); // 해당 결제 정보가 없습니다
+                .orElseThrow(()->new CustomException(PAYMENT_NOT_FOUND)); // 해당 결제 정보가 없습니다
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
@@ -352,11 +355,10 @@ public class PaymentService {
     }
 
     // 토스 결제 요청 성공
-    @Transactional
     public void tossPaymentRequestSuccess(String orderId, int amount,int reserId) {
         // 결제 요청할때 저장한 주문번호, 금액, 예약 고유번호가 맞지 않을경우 예외처리
         if (!this.orderId.equals(orderId) || this.reserAmount != amount || this.reserId != reserId){
-            throw new RuntimeException();
+            throw new CustomException(INVALID_REQUEST);
         }
     }
 }

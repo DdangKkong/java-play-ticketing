@@ -4,13 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.payment.dto.ReservationDto;
 import zerobase18.playticketing.payment.entity.Reservation;
 import zerobase18.playticketing.payment.repository.ReservationRepository;
 import zerobase18.playticketing.payment.type.ReserStat;
 
 import java.time.LocalDate;
-import java.util.Optional;
+
+import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -32,21 +34,39 @@ public class ReservationService {
         return ReservationDto.fromEntity(reservationRepository.save(reservation));
     }
 
-    // 예약 취소 (결제한 예약)
+    // 예약 취소
     @Transactional
     public ReservationDto cancelPaymentReservation(int reserId){
         log.info("cancelPaymentReservation!");
         // dto 에서 entity로 변환
         Reservation reservation = reservationRepository.findById(reserId)
-                .orElseThrow(()-> new RuntimeException()); // 해당 예약이 없습니다
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 없습니다
 
-        // 예약 상태가 성공이어야 결제한 예약
-        paymentCancelPossible(reservation);
+        // 예약 상태가 성공인 경우 (=결제한 예약)
+        if (reservation.getReserStat().equals(ReserStat.SUCCESS)) {
+            // 결제한 예약 취소
+            cancelPayment(reservation);
+        }
+        // 예약 상태가 신청인 경우 (=결제하지 않은 예약)
+        else if (reservation.getReserStat().equals(ReserStat.APPLY)){
+            // 결제하지 않은 예약 삭제
+            reservationRepository.delete(reservation);
+        }
+        else {
+            // 이미 결제 취소한 상태입니다
+            throw new CustomException(ALREADY_CANCEL_PAYMENT);
+        }
 
+        // entity 에서 dto로 변환
+        return ReservationDto.fromEntity(reservation);
+    }
+
+    // 결제한 예약 취소
+    private void cancelPayment(Reservation reservation) {
         // 연극 상영날짜가 지나거나 당일 취소 불가능
         LocalDate schedule_date = LocalDate.parse("2024-04-25"); // 임시 코드
         if (schedule_date.isEqual(LocalDate.now()) || schedule_date.isBefore(LocalDate.now())){
-            throw new RuntimeException();
+            throw new CustomException(TOO_OLD_RESERVATION);
         }
 
         // 환불 금액
@@ -64,39 +84,6 @@ public class ReservationService {
 
         // 환불 금액 저장
         reservation.canceledAmount(canceledAmount);
-
-        // entity 에서 dto로 변환
-        return ReservationDto.fromEntity(reservation);
-    }
-
-    // 예약 취소 요청 (결제하지 않은 예약)
-    public ReservationDto cancelApplyReservation(int reserId){
-        // dto 에서 entity로 변환
-        Reservation reservation = reservationRepository.findById(reserId)
-                .orElseThrow(()-> new RuntimeException()); // 해당 예약이 없습니다
-
-        // 예약 상태가 신청이어야 결제하지 않은 예약
-        applyCancelPossible(reservation);
-
-        // 예약 신청 정보 삭제
-        reservationRepository.delete(reservation);
-
-        // entity 에서 dto로 변환
-        return ReservationDto.fromEntity(reservation);
-    }
-
-    // 예약 상태가 성공이어야 결제한 예약
-    private void paymentCancelPossible(Reservation reservation) {
-        if (reservation.getReserStat() != ReserStat.SUCCESS){
-            throw new RuntimeException();
-        }
-    }
-
-    // 예약 상태가 신청이어야 결제하지 않은 예약
-    private void applyCancelPossible(Reservation reservation) {
-        if (reservation.getReserStat() != ReserStat.APPLY){
-            throw new RuntimeException();
-        }
     }
 
 
