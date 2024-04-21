@@ -44,6 +44,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(AUTH).permitAll()
                 .requestMatchers("/theaters/**").hasRole("COMPANY")
+                .requestMatchers("/answer").hasRole("ADMIN")
                 .anyRequest().permitAll());
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -17,8 +17,9 @@ public enum ErrorCode {
 
 
     /**
-     * customer, seller
+     * customer, seller, admin
      */
+    ADMIN_NOT_FOUND(HttpStatus.BAD_REQUEST, "관리자를 찾을 수 없습니다."),
     ALREADY_USE_LOGIN_ID(HttpStatus.BAD_REQUEST, "이미 사용중인 아이디 입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "사용자를 찾을 수 없습니다."),
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "패스워드가 일치하지 않습니다."),
@@ -37,7 +38,14 @@ public enum ErrorCode {
      */
     CUSTOMER_AUTHORITY_NOT_MATCH(HttpStatus.BAD_REQUEST, "고객 정보가 일치하지 않습니다."),
     ALREADY_EXIST_REVIEW(HttpStatus.BAD_REQUEST, "이미 리뷰가 존재합니다."),
-    REVIEW_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "리뷰를 등록할 권한이 없습니다.");
+    REVIEW_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "리뷰를 등록할 권한이 없습니다."),
+
+    /**
+     * Q&A
+     */
+    QUESTION_NOT_FOUND(HttpStatus.BAD_REQUEST, "질문을 찾을 수 없습니다."),
+    QUESTION_NOT_MATCH(HttpStatus.BAD_REQUEST, "질문과 사용자가 일치하지 않습니다."),
+    ALREADY_ANSWER_QUESTION(HttpStatus.BAD_REQUEST, "이미 답변이 등록된 질문입니다.");
 
     private final HttpStatus httpStatus;
     private final String description;
