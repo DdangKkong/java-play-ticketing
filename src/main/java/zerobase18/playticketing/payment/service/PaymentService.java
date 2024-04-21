@@ -56,14 +56,23 @@ public class PaymentService {
     // 카카오페이 결제 준비
     public KakaoReadyResponseDto kakaoPaymentReady(KakaoReadyRequestDto kakaoReadyRequestDto){
         log.info("[Service] kakaoPaymentReady!");
+        // 결제할 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(kakaoReadyRequestDto.getReser_id())
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
+
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
+
         // 결제 승인에서 사용하기 위해 결제 준비 요청 값 담아주기
         kakaoReadyRequest = kakaoReadyRequestDto;
 
         JSONObject jsonObject = getJsonObject(kakaoReadyRequestDto);
         HttpEntity<String> paymentReadyRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+
         // 결제 준비 요청후 응답
         KakaoReadyResponseDto kakaoReadyResponseDto = restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_READY_URL,
                 paymentReadyRequest, KakaoReadyResponseDto.class);
+
         // 결제 승인에서 사용할 tid 값 담아주기
         tid = kakaoReadyResponseDto.getTid();
 
@@ -78,9 +87,6 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(reserId)
                 .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
 
-        // 예약 신청이어야만 결제 가능
-        paymentPossible(reservation);
-
         // 예약 상태를 예약 완료로 변경
         reservation.successReser();
 
@@ -90,8 +96,9 @@ public class PaymentService {
         // 응답값 변환
         Payment payment = Payment.fromKakaoApproveDto(kakaoApproveResponseDto);
 
-        // 결제 정보에 예약 고유번호 설정
+        // 결제 정보에 예약 고유번호, 환불 가능한 잔액 추가
         payment.addReserId(reservation);
+        payment.cancel(reservation.getReserAmount());
 
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));
@@ -147,9 +154,6 @@ public class PaymentService {
         Reservation reservation = reservationRepository.findById(tossApproveRequestDto.getReserId())
                 .orElseThrow(()->new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 존재하지 않습니다.
 
-        // 예약 신청이어야만 결제 가능
-        paymentPossible(reservation);
-
         // 예약 상태를 예약 완료로 변경
         reservation.successReser();
 
@@ -159,8 +163,9 @@ public class PaymentService {
         // 응답값 변환
         Payment payment = Payment.fromTossDto(tossApproveResponseDto);
 
-        // 결제 정보에 예약 고유번호 설정
+        // 결제 정보에 예약 고유번호, 환불 가능한 잔액 추가
         payment.addReserId(reservation);
+        payment.cancel(reservation.getReserAmount());
 
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));
@@ -210,6 +215,9 @@ public class PaymentService {
         Payment payment = paymentRepository.findByTidPaymentKey(kakaoCancelRequestDto.getTid())
                 .orElseThrow(()-> new CustomException(PAYMENT_NOT_FOUND));
 
+        // 환불 받는 금액이 0원인경우
+        cancelPossible(reservation);
+
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
 
@@ -228,6 +236,13 @@ public class PaymentService {
 
         // 결제 취소 정보 저장
         return PaymentDto.fromEntity(payment);
+    }
+
+    private void cancelPossible(Reservation reservation) {
+        // 환불 받는 금액이 0원인경우
+        if (reservation.getCancelAmount() <= 0){
+            throw new CustomException(ZERO_CANCEL_AMOUNT);
+        }
     }
 
     // 카카오페이 결제 취소 응답
@@ -269,6 +284,9 @@ public class PaymentService {
         // 취소할 결제 정보 조회
         Payment payment = paymentRepository.findByTidPaymentKey(tossCancelRequestDto.getPaymentKey())
                 .orElseThrow(()->new CustomException(PAYMENT_NOT_FOUND)); // 해당 결제 정보가 없습니다
+
+        // 환불 받는 금액이 0원인경우
+        cancelPossible(reservation);
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
@@ -349,6 +367,13 @@ public class PaymentService {
     }
     // 주문번호, 금액, 예약 고유번호 임시 저장
     public void tossPaymentRequest(int reserAmount, String orderId,int reserId) {
+        // 결제할 예약 정보 조회 (결제 요청때 저장한 예약 고유번호)
+        Reservation reservation = reservationRepository.findById(reserId)
+                .orElseThrow(()->new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 존재하지 않습니다.
+
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
+
         this.reserAmount = reserAmount;
         this.orderId = orderId;
         this.reserId = reserId;

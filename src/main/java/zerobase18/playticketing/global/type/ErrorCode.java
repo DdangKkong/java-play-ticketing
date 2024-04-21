@@ -32,7 +32,8 @@ public enum ErrorCode {
     PAYMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당 결제 정보가 존재하지 않습니다."),
     RESERVATION_NOT_APPLY(HttpStatus.BAD_REQUEST, "예약 신청이어야만 결제 가능합니다."),
     ALREADY_CANCEL_PAYMENT(HttpStatus.BAD_REQUEST, "이미 결제 취소한 상태입니다."),
-    TOO_OLD_RESERVATION(HttpStatus.BAD_REQUEST, "연극 상영일자가 당일이거나 지났습니다.");
+    TOO_OLD_RESERVATION(HttpStatus.BAD_REQUEST, "연극 상영일자가 당일이거나 지났습니다."),
+    ZERO_CANCEL_AMOUNT(HttpStatus.BAD_REQUEST, "환불 받을 금액이 0원입니다.");
 
 
 

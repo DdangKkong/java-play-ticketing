@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class KakaoReadyRequestDto {
 
 
+    private int reser_id;               // 예약 고유번호
     private String cid;                 // 가맹점 코드
     private String partner_order_id;    // 가맹점 주문번호
     private String partner_user_id;     // 가맹점 회원 id

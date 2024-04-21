@@ -54,7 +54,11 @@ public class Payment {
         this.reserId = reserId;
     }
 
-    // 취소 일시, 취소 사유 설정
+    // 취소 일시, 취소 사유, 환불 가능한 잔액 설정
+    public void cancel(int refundableAmount){
+        this.refundableAmount = refundableAmount;
+    }
+
     public void cancel(String canceledAt,String cancelReason,int refundableAmount){
         this.canceledAt = canceledAt;
         this.cancelReason = cancelReason;
