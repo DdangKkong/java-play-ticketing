@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import zerobase18.playticketing.global.dto.ErrorResponse;
 
+import static zerobase18.playticketing.global.type.ErrorCode.INTERNAL_SERVER_ERROR;
 import static zerobase18.playticketing.global.type.ErrorCode.INVALID_REQUEST;
 
 @Slf4j
@@ -30,9 +31,9 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public ErrorResponse exceptionHandler(Exception e){
-//        return new ErrorResponse(INTERNAL_SERVER_ERROR,
-//                INTERNAL_SERVER_ERROR.getDescription());
-//    }
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse exceptionHandler(Exception e){
+        return new ErrorResponse(INTERNAL_SERVER_ERROR,
+                INTERNAL_SERVER_ERROR.getDescription());
+    }
 }

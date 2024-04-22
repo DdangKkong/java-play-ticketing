@@ -1,5 +1,6 @@
 package zerobase18.playticketing.play.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import zerobase18.playticketing.global.exception.CustomException;
@@ -42,17 +43,17 @@ public class PlayService {
 
     private Theater findTheater(int theaterId) {
         return theaterRepository.findById(theaterId)
-                .orElseThrow(() -> new CustomException(ErrorCode.THEATER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.THEATER_INVALID));
     }
 
     private Seller findSeller(int sellerId) {
         return sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_INVALID));
     }
 
     private Play findPlay(int playId) {
         return playRepository.findById(playId)
-                .orElseThrow(() -> new CustomException(ErrorCode.PLAY_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAY_INVALID));
     }
 
     // 연극스케줄 생성
@@ -201,6 +202,7 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 수정
+    @Transactional
     public PlayDto updatePlay(UpdatePlay.Request request) throws ParseException {
         Play play = findPlay(request.getPlayId());
         Seller seller = findSeller(request.getSellerId());
@@ -234,7 +236,7 @@ public class PlayService {
         playRepository.save(play);
 
         List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
-        // 좌석 삭제
+        // 스케줄별 좌석 삭제
         for (int i = 0; i < scheduleList.size(); i++) {
             scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
         }
@@ -243,7 +245,7 @@ public class PlayService {
         // 스케줄 재생성
         List<Schedule> schedules = createSchedule(play, request.getSchedule());
         // 연극스케줄 별 좌석 재생성
-        boolean scheduleSeatYN = createScheduleSeat(theater, scheduleList);
+        boolean scheduleSeatYN = createScheduleSeat(theater, schedules);
         // playDto 에 넣어주기
         PlayDto playDto = PlayDto.fromEntity(play);
         playDto.setScheduleList(schedules);
@@ -253,6 +255,7 @@ public class PlayService {
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
     // (스케줄과 스케줄 별 좌석은 삭제하고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
+    @Transactional
     public PlayDto deletePlay(int sellerId, int playId) {
         Play play = findPlay(playId);
         Seller seller = findSeller(sellerId);

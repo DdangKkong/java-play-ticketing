@@ -15,7 +15,7 @@ public class ScheduleSeat {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scheduleAndSeat_id")
+    @Column(name = "scheduleSeat_id")
     private int id;
 
     // 스케줄 고유번호
