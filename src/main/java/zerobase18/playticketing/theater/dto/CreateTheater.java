@@ -15,7 +15,7 @@ public class CreateTheater {
     public static class Request {
 
         @NotNull
-        private int sellerId;
+        private int companyId;
         @NotBlank
         private String theaterName;
         @NotBlank
@@ -42,7 +42,7 @@ public class CreateTheater {
     public static class Response {
 
         private int theaterId;
-        private int sellerId;
+        private int companyId;
         private String theaterName;
         private String theaterAdress;
         private int seatTotalCount;
@@ -53,7 +53,7 @@ public class CreateTheater {
         public static CreateTheater.Response fromDto(TheaterDto theaterDto) {
             return Response.builder()
                     .theaterId(theaterDto.getTheaterId())
-                    .sellerId(theaterDto.getSellerId())
+                    .companyId(theaterDto.getCompanyId())
                     .theaterName(theaterDto.getTheaterName())
                     .theaterAdress(theaterDto.getTheaterAdress())
                     .seatTotalCount(theaterDto.getSeatTotalCount())

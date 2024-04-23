@@ -12,14 +12,14 @@ import zerobase18.playticketing.play.entity.Play;
 import zerobase18.playticketing.play.entity.Schedule;
 import zerobase18.playticketing.play.entity.ScheduleSeat;
 import zerobase18.playticketing.play.repository.PlayRepository;
-import zerobase18.playticketing.play.repository.ScheduleSeatRepository;
 import zerobase18.playticketing.play.repository.ScheduleRepository;
-import zerobase18.playticketing.seller.entity.Seller;
-import zerobase18.playticketing.seller.repository.SellerRepository;
+import zerobase18.playticketing.play.repository.ScheduleSeatRepository;
 import zerobase18.playticketing.theater.entity.Seat;
 import zerobase18.playticketing.theater.entity.Theater;
 import zerobase18.playticketing.theater.repository.SeatRepository;
 import zerobase18.playticketing.theater.repository.TheaterRepository;
+import zerobase18.playticketing.troupe.entity.Troupe;
+import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -28,7 +28,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -39,15 +38,15 @@ public class PlayService {
     private final SeatRepository seatRepository;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSeatRepository scheduleSeatRepository;
-    private final SellerRepository sellerRepository;
+    private final TroupeRepository troupeRepository;
 
     private Theater findTheater(int theaterId) {
         return theaterRepository.findById(theaterId)
                 .orElseThrow(() -> new CustomException(ErrorCode.THEATER_INVALID));
     }
 
-    private Seller findSeller(int sellerId) {
-        return sellerRepository.findById(sellerId)
+    private Troupe findTroupe(int troupeId) {
+        return troupeRepository.findById(troupeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_INVALID));
     }
 
@@ -133,12 +132,9 @@ public class PlayService {
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 생성
     public PlayDto createPlay(CreatePlay.Request request) throws ParseException {
-        Seller seller = findSeller(request.getSellerId());
+        Troupe troupe = findTroupe(request.getTroupeId());
         Theater theater = findTheater(request.getTheaterId());
-        // 극장이 극장업체의 극장인지 체크
-        if (!Objects.equals(theater.getSeller().getSellerId(), seller.getSellerId())) {
-            throw new CustomException(ErrorCode.THEATER_CONNECT_DENIED);
-        }
+
         // 연극 생성
         Play play = playRepository.save(Play.builder()
                         .theater(theater)
@@ -178,8 +174,8 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 조회
-    public PlayDto readPlay(int sellerId, int playId) {
-        Seller seller = findSeller(sellerId);
+    public PlayDto readPlay(int troupeId, int playId) {
+        Troupe troupe = findTroupe(troupeId);
         Play play = findPlay(playId);
 
         // 연극을 등록한 연극 업체인지 확인
@@ -205,7 +201,7 @@ public class PlayService {
     @Transactional
     public PlayDto updatePlay(UpdatePlay.Request request) throws ParseException {
         Play play = findPlay(request.getPlayId());
-        Seller seller = findSeller(request.getSellerId());
+        Troupe troupe = findTroupe(request.getTroupeId());
         Theater theater = findTheater(request.getTheaterId());
 
         // 연극을 등록한 연극 업체인지 확인
@@ -256,9 +252,9 @@ public class PlayService {
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
     // (스케줄과 스케줄 별 좌석은 삭제하고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
     @Transactional
-    public PlayDto deletePlay(int sellerId, int playId) {
+    public PlayDto deletePlay(int troupeId, int playId) {
         Play play = findPlay(playId);
-        Seller seller = findSeller(sellerId);
+        Troupe troupe = findTroupe(troupeId);
 
         // 연극을 등록한 연극 업체인지 확인
 

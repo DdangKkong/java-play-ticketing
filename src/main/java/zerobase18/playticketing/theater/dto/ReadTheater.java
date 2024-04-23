@@ -14,7 +14,7 @@ public class ReadTheater {
     public static class Response {
 
         private int theaterId;
-        private int sellerId;
+        private int companyId;
         private String theaterName;
         private String theaterAdress;
         private int seatTotalCount;
@@ -27,7 +27,7 @@ public class ReadTheater {
         public static ReadTheater.Response fromDto(TheaterDto theaterDto) {
             return Response.builder()
                     .theaterId(theaterDto.getTheaterId())
-                    .sellerId(theaterDto.getSellerId())
+                    .companyId(theaterDto.getCompanyId())
                     .theaterName(theaterDto.getTheaterName())
                     .theaterAdress(theaterDto.getTheaterAdress())
                     .seatTotalCount(theaterDto.getSeatTotalCount())

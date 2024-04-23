@@ -51,9 +51,9 @@ public class TheaterController {
     @DeleteMapping
     public ResponseEntity<DeleteTheater.Response> deleteTheater(
             @RequestParam(name = "theaterId") int theaterId,
-            @RequestParam(name = "sellerId") int sellerId
+            @RequestParam(name = "companyId") int companyId
     ){
-        TheaterDto theaterDto = theaterService.deleteTheater(theaterId, sellerId);
+        TheaterDto theaterDto = theaterService.deleteTheater(theaterId, companyId);
         DeleteTheater.Response response = DeleteTheater.Response.fromDto(theaterDto);
 
         return ResponseEntity.ok(response);
