@@ -3,10 +3,10 @@ package zerobase18.playticketing.theater.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zerobase18.playticketing.company.entity.Company;
+import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.global.type.ErrorCode;
-import zerobase18.playticketing.seller.entity.Seller;
-import zerobase18.playticketing.seller.repository.SellerRepository;
 import zerobase18.playticketing.theater.dto.CreateTheater;
 import zerobase18.playticketing.theater.dto.TheaterDto;
 import zerobase18.playticketing.theater.dto.UpdateTheater;
@@ -24,14 +24,14 @@ import java.util.List;
 public class TheaterService {
 
     private final TheaterRepository theaterRepository;
-    private final SellerRepository sellerRepository;
+    private final CompanyRepository companyRepository;
     private final SeatRepository seatRepository;
 
     private final SeatService seatService;
 
-    private Seller findSeller(int sellerId) {
-        return sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new CustomException(ErrorCode.SELLER_INVALID));
+    private Company findCompany(int companyId) {
+        return companyRepository.findById(companyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMPANY_INVALID));
     }
 
     private Theater findTheater(int theaterId) {
@@ -42,7 +42,7 @@ public class TheaterService {
     // 극장 생성
     public TheaterDto createTheater(CreateTheater.Request request) {
 
-        Seller seller = findSeller(request.getSellerId());
+        Company company = findCompany(request.getCompanyId());
 
         // theater 미리 생성 (theaterId 값을 받아오기 위해)
         Theater theater = Theater.builder()
@@ -50,7 +50,7 @@ public class TheaterService {
                         .theaterAdress(request.getTheaterAdress())
                         .seatTotalCount(request.getSeatTotalCount())
                         .seatRowCount(request.getSeatRowCount())
-                        .seller(seller)
+                        .company(company)
                         .build();
         theaterRepository.save(theater);
 
@@ -94,7 +94,7 @@ public class TheaterService {
     public TheaterDto updateTheater(UpdateTheater.Request request) {
 
         // 연극 업체 정보와 극장 정보 불러오기
-        Seller seller = findSeller(request.getSellerId());
+        Company company = findCompany(request.getCompanyId());
         Theater theater = findTheater(request.getTheaterId());
 
         // 좌석 정보를 제외한 모든 내용 업데이트
@@ -124,10 +124,10 @@ public class TheaterService {
 
     // 극장 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
     @Transactional
-    public TheaterDto deleteTheater(int theaterId, int sellerId) {
+    public TheaterDto deleteTheater(int theaterId, int companyId) {
 
         // 연극 업체 정보와 극장 정보, 좌석 정보 불러오기
-        Seller seller = findSeller(sellerId);
+        Company company = findCompany(companyId);
         Theater theater = findTheater(theaterId);
         List<Seat> seatList = seatRepository.findAllByTheater(theater);
 

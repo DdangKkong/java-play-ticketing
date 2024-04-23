@@ -17,7 +17,7 @@ public class UpdatePlay {
         @NotNull
         private int playId;
         @NotNull
-        private int sellerId;
+        private int troupeId;
         @NotNull
         private int theaterId;
         @NotBlank

@@ -2,7 +2,7 @@ package zerobase18.playticketing.theater.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import zerobase18.playticketing.seller.entity.Seller;
+import zerobase18.playticketing.company.entity.Company;
 
 import java.time.LocalDateTime;
 
@@ -49,7 +49,7 @@ public class Theater {
 
     // 극장 업체 고유번호
     @ManyToOne
-    @JoinColumn(name = "seller_id")
-    private Seller seller;
+    @JoinColumn(name = "company_id")
+    private Company company;
 
 }

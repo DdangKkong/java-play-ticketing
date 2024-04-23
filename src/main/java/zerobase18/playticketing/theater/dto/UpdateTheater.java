@@ -15,7 +15,7 @@ public class UpdateTheater {
     public static class Request {
 
         @NotNull
-        private int sellerId;
+        private int companyId;
         @NotNull
         private int theaterId;
         @NotBlank
@@ -44,7 +44,7 @@ public class UpdateTheater {
     public static class Response {
 
         private int theaterId;
-        private int sellerId;
+        private int companyId;
         private String theaterName;
         private String theaterAdress;
         private int seatTotalCount;
@@ -56,7 +56,7 @@ public class UpdateTheater {
         public static UpdateTheater.Response fromDto(TheaterDto theaterDto) {
             return UpdateTheater.Response.builder()
                     .theaterId(theaterDto.getTheaterId())
-                    .sellerId(theaterDto.getSellerId())
+                    .companyId(theaterDto.getCompanyId())
                     .theaterName(theaterDto.getTheaterName())
                     .theaterAdress(theaterDto.getTheaterAdress())
                     .seatTotalCount(theaterDto.getSeatTotalCount())

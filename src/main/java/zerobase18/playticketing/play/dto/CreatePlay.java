@@ -15,7 +15,7 @@ public class CreatePlay {
     public static class Request {
 
         @NotNull
-        private int sellerId;
+        private int troupeId;
         @NotNull
         private int theaterId;
         @NotBlank

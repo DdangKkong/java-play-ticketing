@@ -29,10 +29,10 @@ public class PlayController {
     // 연극, 연극스케줄, 연극스케줄 별 좌석 조회
     @GetMapping
     public ResponseEntity<ReadPlay.Response> readPlay(
-            @RequestParam(name = "sellerId") int sellerId,
+            @RequestParam(name = "troupeId") int troupeId,
             @RequestParam(name = "playId") int playId
     ){
-        PlayDto playDto = playService.readPlay(sellerId, playId);
+        PlayDto playDto = playService.readPlay(troupeId, playId);
         ReadPlay.Response response = ReadPlay.Response.fromDto(playDto);
         return ResponseEntity.ok(response);
     }
@@ -50,10 +50,10 @@ public class PlayController {
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
     @DeleteMapping
     public ResponseEntity<DeletePlay.Response> deletePlay(
-            @RequestParam(name = "sellerId") int sellerId,
+            @RequestParam(name = "troupeId") int troupeId,
             @RequestParam(name = "playId") int playId
     ){
-        PlayDto playDto = playService.deletePlay((sellerId), playId);
+        PlayDto playDto = playService.deletePlay((troupeId), playId);
         DeletePlay.Response response = DeletePlay.Response.fromDto(playDto);
         return ResponseEntity.ok(response);
     }

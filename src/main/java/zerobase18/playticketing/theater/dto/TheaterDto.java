@@ -17,8 +17,8 @@ public class TheaterDto {
     // 극장 id
     private int theaterId;
 
-    // 연극업체 id
-    private int sellerId;
+    // 극장업체 id
+    private int companyId;
 
     // 극장명
     private String theaterName;
@@ -47,7 +47,7 @@ public class TheaterDto {
     public static TheaterDto fromEntity(Theater theater) {
         return TheaterDto.builder()
                 .theaterId(theater.getId())
-                .sellerId(theater.getSeller().getSellerId())
+                .companyId(theater.getCompany().getCompanyId())
                 .theaterName(theater.getTheaterName())
                 .theaterAdress(theater.getTheaterAdress())
                 .seatTotalCount(theater.getSeatTotalCount())
