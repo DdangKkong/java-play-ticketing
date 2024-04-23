@@ -41,6 +41,9 @@ public class Reservation {
     @Column(name = "reser_at")
     private LocalDateTime reserAt;      // 예약일시
 
+    @Column(name = "cancel_amount")
+    private int cancelAmount;           // 환불 가능한 금액
+
     // 예약 신청 설정
     public void applyReser(){
         this.reserStat = ReserStat.APPLY;
@@ -56,6 +59,11 @@ public class Reservation {
         this.reserStat = ReserStat.CANCEL;
     }
 
+    // 환불 금액 설정
+    public void canceledAmount(int cancelAmount){
+        this.cancelAmount = cancelAmount;
+    }
+
     public static Reservation fromDto(ReservationDto reservationDto){
         return Reservation.builder()
                 .reserId(reservationDto.getReserId())
@@ -66,6 +74,7 @@ public class Reservation {
                 .reserPlayName(reservationDto.getReserPlayName())
                 .reserAmount(reservationDto.getReserAmount())
                 .reserAt(reservationDto.getReserAt())
+                .cancelAmount(reservationDto.getCancelAmount())
                 .build();
     }
 
