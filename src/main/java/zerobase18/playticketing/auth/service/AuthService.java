@@ -10,19 +10,22 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase18.playticketing.auth.dto.CustomerSignInDto;
-import zerobase18.playticketing.auth.dto.SellerSignInDto;
+import zerobase18.playticketing.admin.entity.Admin;
+import zerobase18.playticketing.admin.repository.AdminRepository;
+import zerobase18.playticketing.auth.dto.SignInDto;
+import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
+import zerobase18.playticketing.company.entity.Company;
+import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.global.exception.CustomException;
-import zerobase18.playticketing.seller.entity.Seller;
-import zerobase18.playticketing.seller.repository.SellerRepository;
+import zerobase18.playticketing.troupe.entity.Troupe;
+import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
-import static zerobase18.playticketing.auth.type.UserType.CUSTOMER;
-import static zerobase18.playticketing.auth.type.UserType.SELLER;
-import static zerobase18.playticketing.global.type.ErrorCode.PASSWORD_NOT_MATCH;
-import static zerobase18.playticketing.global.type.ErrorCode.USER_NOT_FOUND;
+import static zerobase18.playticketing.auth.type.UserState.UN_REGISTERED;
+import static zerobase18.playticketing.auth.type.UserType.*;
+import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -31,27 +34,57 @@ public class AuthService implements UserDetailsService {
 
     private final CustomerRepository customerRepository;
 
-    private final SellerRepository sellerRepository;
+    private final CompanyRepository companyRepository;
+
+    private final TroupeRepository troupeRepository;
+
+    private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
 
 
-    public Customer authenticatedCustomer(CustomerSignInDto sign) {
+    public Customer authenticatedCustomer(SignInDto sign) {
         Customer customer = checkCustomerLogInId(sign.getLoginId());
 
-        if (!passwordEncoder.matches(sign.getPassword(), customer.getPassword())) {
-            throw new CustomException(PASSWORD_NOT_MATCH);
-        }
+        validationState(customer.getUserState());
+
+        validationPassword(sign.getPassword(), customer.getPassword());
+
         return customer;
     }
 
-    public Seller authenticatedSeller(SellerSignInDto sign) {
-        Seller seller = checkSellerLogInId(sign.getLoginId());
+    public Company authenticatedCompany(SignInDto sign) {
+        Company company = checkSellerLogInId(sign.getLoginId());
 
-        if (!passwordEncoder.matches(sign.getPassword(), seller.getPassword())) {
-            throw new CustomException(PASSWORD_NOT_MATCH);
-        }
-        return seller;
+
+        validationState(company.getUserState());
+
+        validationPassword(sign.getPassword(), company.getPassword());
+
+
+        return company;
+    }
+
+    public Troupe authenticatedTroupe(SignInDto sign) {
+        Troupe troupe = checkTroupeLogInId(sign.getLoginId());
+
+        validationState(troupe.getUserState());
+
+
+        validationPassword(sign.getPassword(), troupe.getPassword());
+
+        return troupe;
+    }
+
+    public Admin authenticatedAdmin(SignInDto sign) {
+        Admin admin = checkAdminLogInId(sign.getLoginId());
+
+        validationState(admin.getUserState());
+
+
+        validationPassword(sign.getPassword(), admin.getPassword());
+
+        return admin;
     }
 
 
@@ -64,13 +97,26 @@ public class AuthService implements UserDetailsService {
 
             Customer customer = checkCustomerLogInId(loginId);
 
+
             return createUserDetail(customer.getLoginId(), customer.getPassword(), CUSTOMER);
 
-        } else if (sellerRepository.existsByLoginId(loginId)) {
+        } else if (companyRepository.existsByLoginId(loginId)) {
 
-            Seller seller = checkSellerLogInId(loginId);
+            Company company = checkSellerLogInId(loginId);
 
-            return createUserDetail(seller.getLoginId(), seller.getPassword(), SELLER);
+            return createUserDetail(company.getLoginId(), company.getPassword(), COMPANY);
+
+        } else if (troupeRepository.existsByLoginId(loginId)) {
+
+            Troupe troupe = checkTroupeLogInId(loginId);
+
+            return createUserDetail(troupe.getLoginId(), troupe.getPassword(), TROUPE);
+
+        } else if (adminRepository.existsByLoginId(loginId)) {
+
+            Admin admin = checkAdminLogInId(loginId);
+
+            return createUserDetail(admin.getLoginId(), admin.getPassword(), ADMIN);
 
         }
 
@@ -92,8 +138,31 @@ public class AuthService implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
-    private Seller checkSellerLogInId(String loginId) {
-        return sellerRepository.findByLoginId(loginId)
+    private Company checkSellerLogInId(String loginId) {
+        return companyRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private Troupe checkTroupeLogInId(String loginId) {
+        return troupeRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private Admin checkAdminLogInId(String loginId) {
+        return adminRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+    }
+
+    private void validationState(UserState state) {
+
+        if (state.equals(UN_REGISTERED)) {
+            throw new CustomException(UN_REGISTERED_USER);
+        }
+    }
+
+    private void validationPassword(String password, String checkPassword) {
+        if (!passwordEncoder.matches(password, checkPassword)) {
+            throw new CustomException(PASSWORD_NOT_MATCH);
+        }
     }
 }
