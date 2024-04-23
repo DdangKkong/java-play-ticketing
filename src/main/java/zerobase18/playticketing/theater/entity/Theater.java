@@ -47,10 +47,9 @@ public class Theater {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    // 극장 업체 고유번호
     @ManyToOne
-    @JoinColumn(name = "seller")
+    @JoinColumn(name = "seller_id")
     private Seller seller;
-
-
 
 }

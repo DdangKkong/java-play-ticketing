@@ -2,6 +2,8 @@ package zerobase18.playticketing.theater.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zerobase18.playticketing.global.exception.CustomException;
+import zerobase18.playticketing.global.type.ErrorCode;
 import zerobase18.playticketing.theater.entity.Seat;
 import zerobase18.playticketing.theater.entity.Theater;
 import zerobase18.playticketing.theater.repository.SeatRepository;
@@ -19,7 +21,7 @@ public class SeatService {
 
     private Theater findTheater(int theaterId) {
         return theaterRepository.findById(theaterId)
-                .orElseThrow(() -> new RuntimeException("올바르지 않은 극장 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.THEATER_INVALID));
     }
 
     public List<Seat> createSeat(int theaterId, String[] seatTypeArr, char[] seatRowArr, int[] seatPriceArr, int[][] seatNumArr) {
@@ -43,7 +45,7 @@ public class SeatService {
                         Seat foundSeat = foundSeats.get(k);
                         int foundTheaterId = foundSeat.getTheater().getId();
                         if (theaterId == foundTheaterId) {
-                            throw new RuntimeException("이미 생성된 좌석 정보입니다." + seatRowArr[i] + "열" + j + "번");
+                            throw new CustomException(ErrorCode.SEAT_CONFLICT);
                         }
                     }
                 }

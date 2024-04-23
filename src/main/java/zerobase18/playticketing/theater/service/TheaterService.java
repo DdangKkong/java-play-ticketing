@@ -3,6 +3,8 @@ package zerobase18.playticketing.theater.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import zerobase18.playticketing.global.exception.CustomException;
+import zerobase18.playticketing.global.type.ErrorCode;
 import zerobase18.playticketing.seller.entity.Seller;
 import zerobase18.playticketing.seller.repository.SellerRepository;
 import zerobase18.playticketing.theater.dto.CreateTheater;
@@ -29,12 +31,12 @@ public class TheaterService {
 
     private Seller findSeller(int sellerId) {
         return sellerRepository.findById(sellerId)
-                .orElseThrow(() -> new RuntimeException("올바르지 않은 연극업체 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.SELLER_INVALID));
     }
 
     private Theater findTheater(int theaterId) {
         return theaterRepository.findById(theaterId)
-                .orElseThrow(() -> new RuntimeException("올바르지 않은 극장 정보입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.THEATER_INVALID));
     }
 
     // 극장 생성
