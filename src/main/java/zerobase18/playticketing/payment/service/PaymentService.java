@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.payment.dto.PaymentDto;
 import zerobase18.playticketing.payment.dto.kakao.*;
 import zerobase18.playticketing.payment.dto.toss.TossApproveRequestDto;
@@ -20,11 +21,14 @@ import zerobase18.playticketing.payment.entity.Reservation;
 import zerobase18.playticketing.payment.repository.PaymentRepository;
 import zerobase18.playticketing.payment.repository.ReservationRepository;
 import zerobase18.playticketing.payment.type.KakaoConstants;
+import zerobase18.playticketing.payment.type.ReserStat;
 import zerobase18.playticketing.payment.type.TossConstants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
+
+import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -34,10 +38,12 @@ public class PaymentService {
     private final RestTemplate restTemplate;
     private final ReservationRepository reservationRepository;
     private final PaymentRepository paymentRepository;
+
+    // 카카오 결제 요청 데이터 임시 저장
     private KakaoReadyRequestDto kakaoReadyRequest;
     private String tid;
 
-    // 결제 요청 데이터 임시 저장
+    // 토스 결제 요청 데이터 임시 저장
     private int reserAmount;
     private String orderId;
     private int reserId;
@@ -50,14 +56,23 @@ public class PaymentService {
     // 카카오페이 결제 준비
     public KakaoReadyResponseDto kakaoPaymentReady(KakaoReadyRequestDto kakaoReadyRequestDto){
         log.info("[Service] kakaoPaymentReady!");
+        // 결제할 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(kakaoReadyRequestDto.getReser_id())
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
+
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
+
         // 결제 승인에서 사용하기 위해 결제 준비 요청 값 담아주기
         kakaoReadyRequest = kakaoReadyRequestDto;
 
         JSONObject jsonObject = getJsonObject(kakaoReadyRequestDto);
         HttpEntity<String> paymentReadyRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
+
         // 결제 준비 요청후 응답
         KakaoReadyResponseDto kakaoReadyResponseDto = restTemplate.postForObject(KakaoConstants.KAKAO_PAYMENT_READY_URL,
                 paymentReadyRequest, KakaoReadyResponseDto.class);
+
         // 결제 승인에서 사용할 tid 값 담아주기
         tid = kakaoReadyResponseDto.getTid();
 
@@ -65,14 +80,38 @@ public class PaymentService {
     }
 
     // 카카오페이 결제 승인
-    public KakaoApproveResponseDto kakaoPaymentApprove(String pg_token){
+    @Transactional
+    public PaymentDto kakaoPaymentApprove(int reserId,String pg_token){
         log.info("[Service] kakaoPaymentApprove!");
+        // 결제할 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(reserId)
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
+
+        // 예약 상태를 예약 완료로 변경
+        reservation.successReser();
+
+        // 결제 승인 응답
+        KakaoApproveResponseDto kakaoApproveResponseDto = kakaoPaymentAccept(pg_token);
+
+        // 응답값 변환
+        Payment payment = Payment.fromKakaoApproveDto(kakaoApproveResponseDto);
+
+        // 결제 정보에 예약 고유번호, 환불 가능한 잔액 추가
+        payment.addReserId(reservation);
+        payment.cancel(reservation.getReserAmount());
+
+        // 결제 정보 저장
+        return PaymentDto.fromEntity(paymentRepository.save(payment));
+    }
+
+    // 카카오페이 결제 승인 응답
+    private KakaoApproveResponseDto kakaoPaymentAccept(String pg_token) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cid",kakaoReadyRequest.getCid());
         jsonObject.put("tid",tid);
         jsonObject.put("partner_order_id",kakaoReadyRequest.getPartner_order_id());
         jsonObject.put("partner_user_id",kakaoReadyRequest.getPartner_user_id());
-        jsonObject.put("pg_token",pg_token);
+        jsonObject.put("pg_token", pg_token);
 
         HttpEntity<String> kakaoApproveRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
@@ -112,8 +151,8 @@ public class PaymentService {
     public PaymentDto tossPaymentApprove(TossApproveRequestDto tossApproveRequestDto) {
         log.info("[Service] tossPaymentApprove!");
         // 결제할 예약 정보 조회 (결제 요청때 저장한 예약 고유번호)
-        Reservation reservation = reservationRepository.findById(reserId)
-                .orElseThrow(()->new RuntimeException()); // 해당 예약이 존재하지 않습니다
+        Reservation reservation = reservationRepository.findById(tossApproveRequestDto.getReserId())
+                .orElseThrow(()->new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 존재하지 않습니다.
 
         // 예약 상태를 예약 완료로 변경
         reservation.successReser();
@@ -124,11 +163,21 @@ public class PaymentService {
         // 응답값 변환
         Payment payment = Payment.fromTossDto(tossApproveResponseDto);
 
+        // 결제 정보에 예약 고유번호, 환불 가능한 잔액 추가
+        payment.addReserId(reservation);
+        payment.cancel(reservation.getReserAmount());
+
         // 결제 정보 저장
         return PaymentDto.fromEntity(paymentRepository.save(payment));
 
     }
 
+    // 예약 신청이어야만 결제 가능
+    private void paymentPossible(Reservation reservation) {
+        if (reservation.getReserStat() != ReserStat.APPLY){
+            throw new CustomException(RESERVATION_NOT_APPLY);
+        }
+    }
 
     // 토스 페이먼츠 결제 승인 응답
     private TossApproveResponseDto tossPaymentAccept(TossApproveRequestDto tossApproveRequestDto) {
@@ -154,15 +203,56 @@ public class PaymentService {
                 tossApproveRequest, TossApproveResponseDto.class);
     }
 
-
     // 카카오페이 결제 취소
-    public KakaoCancelResponseDto kakaoPaymentCancel(KakaoCancelRequestDto kakaoCancelRequestDto){
+    @Transactional
+    public PaymentDto kakaoPaymentCancel(KakaoCancelRequestDto kakaoCancelRequestDto){
         log.info("[Service] kakaoPaymentCancel!");
+        // 결제 취소할 예약 정보 조회
+        Reservation reservation = reservationRepository.findById(kakaoCancelRequestDto.getReserId())
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND));
+
+        // 취소할 결제 정보 조회
+        Payment payment = paymentRepository.findByTidPaymentKey(kakaoCancelRequestDto.getTid())
+                .orElseThrow(()-> new CustomException(PAYMENT_NOT_FOUND));
+
+        // 환불 받는 금액이 0원인경우
+        cancelPossible(reservation);
+
+        // 예약 상태를 예약 취소로 변경
+        reservation.canceledReser();
+
+        // 환불 금액 설정
+        kakaoCancelRequestDto.setCancel_amount(reservation.getCancelAmount());
+
+        // 카카오 결제 취소 응답
+        KakaoCancelResponseDto kakaoCancelResponseDto = kakaoPaymentCancelAccept(kakaoCancelRequestDto);
+
+        //응답값 변환
+        Payment cancelPayment = Payment.fromKakaoCancelDto(kakaoCancelResponseDto);
+
+        // 취소 일시, 취소 사유, 환불 가능 금액 설정
+        payment.cancel(cancelPayment.getCanceledAt(), cancelPayment.getCancelReason(),
+                cancelPayment.getRefundableAmount());
+
+        // 결제 취소 정보 저장
+        return PaymentDto.fromEntity(payment);
+    }
+
+    private void cancelPossible(Reservation reservation) {
+        // 환불 받는 금액이 0원인경우
+        if (reservation.getCancelAmount() <= 0){
+            throw new CustomException(ZERO_CANCEL_AMOUNT);
+        }
+    }
+
+    // 카카오페이 결제 취소 응답
+    private KakaoCancelResponseDto kakaoPaymentCancelAccept(KakaoCancelRequestDto kakaoCancelRequestDto) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("cid",kakaoCancelRequestDto.getCid());
-        jsonObject.put("tid",tid);
-        jsonObject.put("cancel_amount",kakaoCancelRequestDto.getCancel_amount());
-        jsonObject.put("cancel_tax_free_amount",kakaoCancelRequestDto.getCancel_tax_free_amount());
+        jsonObject.put("cid", kakaoCancelRequestDto.getCid());
+        jsonObject.put("tid",kakaoCancelRequestDto.getTid());
+        jsonObject.put("cancel_amount", kakaoCancelRequestDto.getCancel_amount());
+        jsonObject.put("cancel_tax_free_amount", kakaoCancelRequestDto.getCancel_tax_free_amount());
+        jsonObject.put("payload", kakaoCancelRequestDto.getPayload());
 
         HttpEntity<String> kakaoCancelRequest = new HttpEntity<>(jsonObject.toString(),getHeaders());
 
@@ -189,14 +279,20 @@ public class PaymentService {
         log.info("[Service] tossPaymentCancel!");
         // 결제 취소할 예약 정보 조회
         Reservation reservation = reservationRepository.findById(tossCancelRequestDto.getReserId())
-                .orElseThrow(()-> new RuntimeException()); // 해당 예약 정보가 없습니다
+                .orElseThrow(()-> new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약 정보가 없습니다
+
+        // 취소할 결제 정보 조회
+        Payment payment = paymentRepository.findByTidPaymentKey(tossCancelRequestDto.getPaymentKey())
+                .orElseThrow(()->new CustomException(PAYMENT_NOT_FOUND)); // 해당 결제 정보가 없습니다
+
+        // 환불 받는 금액이 0원인경우
+        cancelPossible(reservation);
 
         // 예약 상태를 예약 취소로 변경
         reservation.canceledReser();
 
-        // 취소할 결제 정보 조회
-        Payment payment = paymentRepository.findById(tossCancelRequestDto.getPaymentId())
-                .orElseThrow(()->new RuntimeException()); // 해당 결제 정보가 없습니다
+        // 환불 금액 설정
+        tossCancelRequestDto.setCancelAmount(reservation.getCancelAmount());
 
         // 토스 결제 취소 응답
         TossApproveResponseDto tossCancelResponseDto = tossPaymentCancelAccept(tossCancelRequestDto);
@@ -204,18 +300,19 @@ public class PaymentService {
         // 응답값 변환
         Payment cancelPayment = Payment.fromTossDto(tossCancelResponseDto);
 
-        // 취소 일시, 취소 사유 설정
-        payment.cancel(cancelPayment.getCanceledAt(),cancelPayment.getCancelReason());
+        // 취소 일시, 취소 사유, 환불 가능 금액 설정
+        payment.cancel(cancelPayment.getCanceledAt(),cancelPayment.getCancelReason(),
+                cancelPayment.getRefundableAmount());
 
         // 결제 취소 정보 저장
         return PaymentDto.fromEntity(payment);
     }
 
-
     // 토스 페이먼츠 결제 취소 응답
     private TossApproveResponseDto tossPaymentCancelAccept(TossCancelRequestDto tossCancelRequestDto) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("cancelReason", tossCancelRequestDto.getCancelReason());
+        jsonObject.put("cancelAmount", tossCancelRequestDto.getCancelAmount());
 
         // 가상계좌 결제 취소시 필수 값 세팅
         if (tossCancelRequestDto.getRefundReceiveAccount() != null) {
@@ -270,17 +367,23 @@ public class PaymentService {
     }
     // 주문번호, 금액, 예약 고유번호 임시 저장
     public void tossPaymentRequest(int reserAmount, String orderId,int reserId) {
+        // 결제할 예약 정보 조회 (결제 요청때 저장한 예약 고유번호)
+        Reservation reservation = reservationRepository.findById(reserId)
+                .orElseThrow(()->new CustomException(RESERVATION_NOT_FOUND)); // 해당 예약이 존재하지 않습니다.
+
+        // 예약 신청이어야만 결제 가능
+        paymentPossible(reservation);
+
         this.reserAmount = reserAmount;
         this.orderId = orderId;
         this.reserId = reserId;
     }
 
     // 토스 결제 요청 성공
-    @Transactional
     public void tossPaymentRequestSuccess(String orderId, int amount,int reserId) {
         // 결제 요청할때 저장한 주문번호, 금액, 예약 고유번호가 맞지 않을경우 예외처리
         if (!this.orderId.equals(orderId) || this.reserAmount != amount || this.reserId != reserId){
-            throw new RuntimeException();
+            throw new CustomException(INVALID_REQUEST);
         }
     }
 }

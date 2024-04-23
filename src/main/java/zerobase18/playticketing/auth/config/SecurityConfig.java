@@ -26,9 +26,6 @@ public class SecurityConfig {
             "/customer/signup", "/customer/signin",
             "/seller/signup", "/seller/signup"
     };
-
-
-
     /**
      * 권한 설정
      */
@@ -45,8 +42,10 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(AUTH).permitAll()
-                // @PreAuthorization 사용할 것이기 때문에 모든 경로에 대한 인증 처리 생략
-//                .requestMatchers("/theaters/**").hasRole("SELLER")
+                                   
+                .requestMatchers("/theaters/**").hasRole("COMPANY")
+                .requestMatchers("/answer").hasRole("ADMIN")
+                                   
                 .anyRequest().permitAll());
 
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
