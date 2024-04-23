@@ -21,6 +21,7 @@ public class PaymentDto {
     private String requestAt;           // 결제일시
     private String canceledAt;          // 결제취소일시
     private String cancelReason;        // 결제취소사유
+    private int refundableAmount;       // 결제 취소 후 환불 가능한 잔액
 
     public static PaymentDto fromEntity(Payment payment){
         return PaymentDto.builder()
@@ -33,6 +34,7 @@ public class PaymentDto {
                 .requestAt(payment.getRequestAt())
                 .canceledAt(payment.getCanceledAt())
                 .cancelReason(payment.getCancelReason())
+                .refundableAmount(payment.getRefundableAmount())
                 .build();
     }
 

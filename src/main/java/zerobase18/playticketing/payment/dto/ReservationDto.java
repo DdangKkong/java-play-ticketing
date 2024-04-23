@@ -31,6 +31,8 @@ public class ReservationDto {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime reserAt;      // 예약일시
 
+    private int cancelAmount;           // 환불 가능한 금액
+
     public static ReservationDto fromEntity(Reservation reservation){
         return ReservationDto.builder()
                 .reserId(reservation.getReserId())
@@ -38,7 +40,7 @@ public class ReservationDto {
                 .reserPlayName(reservation.getReserPlayName())
                 .reserStat(reservation.getReserStat())
                 .reserAmount(reservation.getReserAmount())
-                .reserAt(reservation.getReserAt())
+                .cancelAmount(reservation.getCancelAmount())
                 .build();
     }
 
