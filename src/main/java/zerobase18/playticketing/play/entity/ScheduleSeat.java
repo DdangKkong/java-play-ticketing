@@ -33,4 +33,15 @@ public class ScheduleSeat {
     @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
+
+    // 좌석 예약
+    public void reservation(Reservation reservation){
+        this.reservation = reservation;
+    }
+
+    // 좌석 예약 취소
+    public void cancelReservation(){
+        this.reservation = null;
+    }
+
 }

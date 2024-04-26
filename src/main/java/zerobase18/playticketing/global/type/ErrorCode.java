@@ -41,6 +41,22 @@ public enum ErrorCode {
     THEATER_INVALID(HttpStatus.BAD_REQUEST, "잘못된 극장 정보입니다."),
     SEAT_CONFLICT(HttpStatus.CONFLICT, "이미 생성된 좌석 정보입니다."),
 
+
+    /**
+     * schedule
+     */
+
+    SCHEDULE_NOT_FOUND(HttpStatus.CONFLICT, "스케줄이 존재하지 않습니다."),
+
+
+    /**
+     * schedule_seat
+     */
+
+    SCHEDULE_SEAT_NOT_FOUND(HttpStatus.CONFLICT, "스케줄별 좌석이 존재하지 않습니다."),
+    ALREADY_RESERVATION_SEAT(HttpStatus.CONFLICT, "이미 예약된 좌석입니다."),
+    NOT_RESERVATION_SEAT(HttpStatus.CONFLICT, "예약되어 있지 않은 좌석입니다."),
+
     /**
      * review
      */
@@ -65,7 +81,7 @@ public enum ErrorCode {
     RESERVATION_NOT_APPLY(HttpStatus.BAD_REQUEST, "예약 신청이어야만 결제 가능합니다."),
     ALREADY_CANCEL_PAYMENT(HttpStatus.BAD_REQUEST, "이미 결제 취소한 상태입니다."),
     TOO_OLD_RESERVATION(HttpStatus.BAD_REQUEST, "연극 상영일자가 당일이거나 지났습니다."),
-    ZERO_CANCEL_AMOUNT(HttpStatus.BAD_REQUEST, "환불 받을 금액이 0원입니다.")
+    INVALID_CANCEL_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 환불 금액입니다.")
 
     ;
 
