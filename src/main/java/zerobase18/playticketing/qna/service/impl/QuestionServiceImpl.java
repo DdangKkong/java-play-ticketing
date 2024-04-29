@@ -126,7 +126,7 @@ public class QuestionServiceImpl implements QuestionService {
         question.setTitle(title);
         question.setContent(content);
 
-        questionRepository.save(question);
+        //questionRepository.save(question);
 
 
         return QuestionDto.fromEntity(question);

@@ -1,11 +1,9 @@
 package zerobase18.playticketing.company.service;
 
-import zerobase18.playticketing.auth.dto.SellerSignUpDto;
+import zerobase18.playticketing.auth.dto.CompanySignUpDto;
 import zerobase18.playticketing.company.dto.CompanyDto;
 import zerobase18.playticketing.company.dto.SearchCompany;
 import zerobase18.playticketing.company.dto.UpdateCompanyDto;
-import zerobase18.playticketing.troupe.dto.TroupeDto;
-import zerobase18.playticketing.troupe.dto.UpdateTroupeDto;
 
 import java.util.List;
 
@@ -14,7 +12,7 @@ public interface CompanyService {
     /**
      * 극장 회원 가입
      */
-    CompanyDto signUp(SellerSignUpDto signUpDto);
+    CompanyDto signUp(CompanySignUpDto signUpDto);
 
 
     /**
