@@ -34,12 +34,12 @@ public class AnswerController {
     @PutMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public AnswerUpdate.Response updateAnswer(
-            @RequestParam @Valid Integer customerId,
+            @RequestParam @Valid Integer adminId,
             @RequestParam @Valid Integer answerId,
             @RequestBody @Valid AnswerUpdate.Request request
     ) {
         return AnswerUpdate.Response.fromEntity(
-                answerService.updateAnswer(customerId, answerId, request)
+                answerService.updateAnswer(adminId, answerId, request)
         );
     }
 }

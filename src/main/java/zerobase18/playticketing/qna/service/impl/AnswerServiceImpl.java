@@ -84,8 +84,8 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     @Transactional
-    public AnswerDto updateAnswer(Integer customerId, Integer answerId, AnswerUpdate.Request request) {
-        Customer customer = customerRepository.findById(customerId)
+    public AnswerDto updateAnswer(Integer adminId, Integer answerId, AnswerUpdate.Request request) {
+        Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
         Answer answer = answerRepository.findById(answerId)
@@ -93,7 +93,7 @@ public class AnswerServiceImpl implements AnswerService {
 
 
 
-        if (!answer.getCustomer().equals(customer)) {
+        if (!answer.getAdmin().equals(admin)) {
             throw new CustomException(QUESTION_NOT_MATCH);
         }
 
