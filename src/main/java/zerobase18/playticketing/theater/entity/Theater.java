@@ -3,13 +3,13 @@ package zerobase18.playticketing.theater.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import zerobase18.playticketing.company.entity.Company;
+import zerobase18.playticketing.theater.dto.UpdateTheater;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Builder
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Theater {
@@ -51,5 +51,21 @@ public class Theater {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+
+    public void createTheater(LocalDateTime createdAt){
+        this.createdAt = createdAt;
+    }
+
+    public void changeTheater(UpdateTheater.Request request, LocalDateTime updatedAt){
+        this.theaterName = request.getTheaterName();
+        this.theaterAdress = request.getTheaterAdress();
+        this.seatTotalCount = request.getSeatTotalCount();
+        this.seatRowCount = request.getSeatRowCount();
+        this.updatedAt = updatedAt;
+    }
+
+    public void deleteTheater(LocalDateTime deletedAt){
+        this.deletedAt = deletedAt;
+    }
 
 }

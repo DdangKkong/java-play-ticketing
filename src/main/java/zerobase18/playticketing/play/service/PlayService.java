@@ -2,6 +2,7 @@ package zerobase18.playticketing.play.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.global.type.ErrorCode;
@@ -131,12 +132,15 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 생성
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
+    @Transactional
     public PlayDto createPlay(CreatePlay.Request request) throws ParseException {
         Troupe troupe = findTroupe(request.getTroupeId());
         Theater theater = findTheater(request.getTheaterId());
 
         // 연극 생성
         Play play = playRepository.save(Play.builder()
+                        .troupe(troupe)
                         .theater(theater)
                         .playName(request.getPlayName())
                         .playDetails(request.getPlayDetails())
@@ -163,7 +167,7 @@ public class PlayService {
         // 타입을 LocalDateTime 으로
         LocalDateTime createdAt = LocalDateTime.parse(formattedNow, formatter);
         // 다시 저장
-        play.setCreatedAt(createdAt);
+        play.createPlay(createdAt);
         playRepository.save(play);
 
         // Dto 생성해서 나머지 정보 추가
@@ -173,15 +177,15 @@ public class PlayService {
         return playDto;
     }
 
-    // 연극, 연극스케줄, 연극스케줄 별 좌석 조회
+    // 연극, 연극스케줄, 연극스케줄 별 좌석 조회 - 누구나 조회 가능
     public PlayDto readPlay(int troupeId, int playId) {
         Troupe troupe = findTroupe(troupeId);
         Play play = findPlay(playId);
 
         // 연극을 등록한 연극 업체인지 확인
-
-
-
+        if (play.getTroupe().getTroupeId() != troupeId) {
+            throw new CustomException(ErrorCode.TROUPE_NOT_MATCH);
+        }
 
         List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
         List<ScheduleSeat> scheduleSeats = new ArrayList<>();
@@ -198,6 +202,7 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 수정
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @Transactional
     public PlayDto updatePlay(UpdatePlay.Request request) throws ParseException {
         Play play = findPlay(request.getPlayId());
@@ -205,21 +210,11 @@ public class PlayService {
         Theater theater = findTheater(request.getTheaterId());
 
         // 연극을 등록한 연극 업체인지 확인
-
-
+        if (play.getTroupe().getTroupeId() != request.getTroupeId()) {
+            throw new CustomException(ErrorCode.TROUPE_NOT_MATCH);
+        }
 
         // 정보 수정, 스케줄과 스케줄 별 좌석은 모두 삭제 후 재생성
-        play.setPlayName(request.getPlayName());
-        play.setPlayDetails(request.getPlayDetails());
-        play.setPosterUrl(request.getPosterUrl());
-        play.setRatings(request.getRatings());
-        play.setPlayGenre(request.getPlayGenre());
-        play.setPlayStartDate(request.getPlayStartDate());
-        play.setPlayEndDate(request.getPlayEndDate());
-        play.setRuntime(request.getRuntime());
-        play.setActors(request.getActors());
-        play.setReservationYN(request.isReservationYN());
-        play.setTheater(theater);
         // 수정 시간 넣기
         LocalDateTime now = LocalDateTime.now();
         // DateTimeFormatter를 사용하여 날짜와 시간 형식을 포맷
@@ -228,8 +223,7 @@ public class PlayService {
         // 타입을 LocalDateTime 으로
         LocalDateTime updatedAt = LocalDateTime.parse(formattedNow, formatter);
         // 다시 저장
-        play.setUpdatedAt(updatedAt);
-        playRepository.save(play);
+        play.changePlay(request, theater, updatedAt);
 
         List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
         // 스케줄별 좌석 삭제
@@ -250,14 +244,17 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
-    // (스케줄과 스케줄 별 좌석은 삭제하고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
+    // (deletedAt 데이터를 넣어주고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @Transactional
     public PlayDto deletePlay(int troupeId, int playId) {
         Play play = findPlay(playId);
         Troupe troupe = findTroupe(troupeId);
 
         // 연극을 등록한 연극 업체인지 확인
-
+        if (play.getTroupe().getTroupeId() != troupeId) {
+            throw new CustomException(ErrorCode.TROUPE_NOT_MATCH);
+        }
 
         // 삭제 시간 넣기
         LocalDateTime now = LocalDateTime.now();
@@ -267,16 +264,15 @@ public class PlayService {
         // 타입을 LocalDateTime 으로
         LocalDateTime deletedAt = LocalDateTime.parse(formattedNow, formatter);
         // 다시 저장
-        play.setDeletedAt(deletedAt);
-        playRepository.save(play);
+        play.deletePlay(deletedAt);
 
-        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
-        // 좌석 삭제
-        for (int i = 0; i < scheduleList.size(); i++) {
-            scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
-        }
-        // 스케줄 삭제
-        scheduleRepository.deleteAllByPlay(play);
+//        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
+//        // 좌석 삭제
+//        for (int i = 0; i < scheduleList.size(); i++) {
+//            scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
+//        }
+//        // 스케줄 삭제
+//        scheduleRepository.deleteAllByPlay(play);
         // playDto 생성
         return PlayDto.fromEntity(play);
     }

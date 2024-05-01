@@ -26,6 +26,7 @@ public enum ErrorCode {
     USER_INVALID(HttpStatus.BAD_REQUEST, "잘못된 유저 정보입니다."),
     COMPANY_INVALID(HttpStatus.BAD_REQUEST, "잘못된 연극업체 정보입니다."),
     UN_REGISTERED_USER(HttpStatus.BAD_REQUEST, "이미 탈퇴한 고객 입니다."),
+    TROUPE_NOT_MATCH(HttpStatus.BAD_REQUEST, "잘못된 연극업체 정보입니다."),
 
     /**
      * play

@@ -43,8 +43,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(AUTH).permitAll()
                                    
-                .requestMatchers("/theaters/**").hasRole("COMPANY")
-                .requestMatchers("/answer").hasRole("ADMIN")
+//                .requestMatchers("/theaters/**").hasRole("COMPANY")
+//                .requestMatchers("/answer").hasRole("ADMIN")
                                    
                 .anyRequest().permitAll());
 
