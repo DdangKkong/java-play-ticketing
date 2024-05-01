@@ -54,7 +54,7 @@ public class AuthService implements UserDetailsService {
     }
 
     public Company authenticatedCompany(SignInDto sign) {
-        Company company = checkSellerLogInId(sign.getLoginId());
+        Company company = checkCompanyLogInId(sign.getLoginId());
 
 
         validationState(company.getUserState());
@@ -102,7 +102,7 @@ public class AuthService implements UserDetailsService {
 
         } else if (companyRepository.existsByLoginId(loginId)) {
 
-            Company company = checkSellerLogInId(loginId);
+            Company company = checkCompanyLogInId(loginId);
 
             return createUserDetail(company.getLoginId(), company.getPassword(), COMPANY);
 
@@ -134,11 +134,12 @@ public class AuthService implements UserDetailsService {
 
 
     private Customer checkCustomerLogInId(String loginId) {
+
         return customerRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }
 
-    private Company checkSellerLogInId(String loginId) {
+    private Company checkCompanyLogInId(String loginId) {
         return companyRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
     }

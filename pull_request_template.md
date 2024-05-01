@@ -1,31 +1,21 @@
 ### 변경 사항
 
-feat :  Play (연극) CRUD 구현 완료.
+feat : 
+  
 
-- 기능 설명 :
-  - 연극 생성
-    - 연극스케줄과 연극스케줄 별 좌석이 모두 생성된다.
-    - 스케줄은 상영날짜, 상영시간이 각각 들어있는 이차원 배열로 받아온다.
-    - 상영날짜의 형식은 "yyyymmdd"(integer), 상영시간의 형식은 "hhmm"(integer) 이다
-    - ex){20240415, 1700, 1930, 2200},
-    -    {20240417, 1900, 2100},
-    -    {20240419, 1700, 1930, 2200},
-    -    {20240420, 1430, 1700, 1930, 2200}
-  - 연극 수정
-    - 연극스케줄과 연극스케줄 별 좌석은 모두 삭제 후 재생성한다.
-  - 연극 삭제
-    - 연극의 데이터는 모두 보관하며 삭제 시간을 넣어 구분한다. (프론트에서 보이지 않게 처리)
-    - 연극스케줄과 연극스케줄 별 좌석은 모두 삭제한다.
-
-refactor : TheaterService, SeatService 에서 사용한 ErrorCode CustomException 으로 변경.
+refactor : 수정 사항 적용 완료
+- enum 타입으로 변환 : 연극의 예약가능여부(reservationYN), 관람등급(ratings), 장르(playGenre)
+- seatService 삭제 및 theaterService 와 합침
+- setter 사용하지 않도록 수정
+- security 적용 (@PreAuthorize 적용)
 
 ** AS-IS**
 
-  Play (연극) CRUD 구현 완료.
+  
 
 ** TO-BE**
 
-  ~~ 구현 예정.
+  
 
 ### ⚡️ 테스트
 

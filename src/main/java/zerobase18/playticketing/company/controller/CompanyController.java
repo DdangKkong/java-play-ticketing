@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import zerobase18.playticketing.auth.dto.SignInDto;
-import zerobase18.playticketing.auth.dto.SellerSignUpDto;
+import zerobase18.playticketing.auth.dto.CompanySignUpDto;
 import zerobase18.playticketing.auth.security.TokenProvider;
 import zerobase18.playticketing.auth.service.AuthService;
 import zerobase18.playticketing.company.dto.CompanyInfo;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequiredArgsConstructor
 @Validated
-@RequestMapping("/seller")
+@RequestMapping("/company")
 public class CompanyController {
 
     private final CompanyService companyService;
@@ -37,12 +37,13 @@ public class CompanyController {
      * 극장 업체 회원 가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<?> companySignUp(@RequestBody @Valid SellerSignUpDto signUpDto) {
+    public ResponseEntity<?> companySignUp(@RequestBody @Valid CompanySignUpDto signUpDto) {
 
         return ResponseEntity.ok().body(
                 signUpDto.from(companyService.signUp(signUpDto))
         );
     }
+
 
     /**
      * 극장 업체 로그인

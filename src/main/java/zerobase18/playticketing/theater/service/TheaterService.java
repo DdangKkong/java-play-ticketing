@@ -17,6 +17,7 @@ import zerobase18.playticketing.theater.repository.TheaterRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,7 +28,6 @@ public class TheaterService {
     private final CompanyRepository companyRepository;
     private final SeatRepository seatRepository;
 
-    private final SeatService seatService;
 
     private Company findCompany(int companyId) {
         return companyRepository.findById(companyId)
@@ -39,7 +39,51 @@ public class TheaterService {
                 .orElseThrow(() -> new CustomException(ErrorCode.THEATER_INVALID));
     }
 
-    // 극장 생성
+    // 좌석 생성 메소드
+    private List<Seat> createSeat(int theaterId, String[] seatTypeArr, char[] seatRowArr, int[] seatPriceArr, int[][] seatNumArr) {
+        Theater theater = findTheater(theaterId);
+        int[] seatTypeIdArr = new int[seatTypeArr.length];
+
+        List<Seat> seatList = new ArrayList<>();
+
+        for (int i = 0; i < seatTypeIdArr.length; i++) {
+
+            // 시작번호부터 끝번호까지 좌석 생성
+            int startNum = seatNumArr[0][i];
+            int endNum = seatNumArr[1][i];
+            for (int j = startNum; j <= endNum; j++) {
+
+                // 이미 해당 극장에 생성된 좌석이라면 생성불가
+                if (seatRepository.existsSeatBySeatNumAndSeatRow(j, seatRowArr[i])) {
+                    List<Seat> foundSeats = seatRepository.findAllBySeatNumAndSeatRow(j, seatRowArr[i]);
+                    int size = foundSeats.size();
+                    for (int k = 0; k < size; k++) {
+                        Seat foundSeat = foundSeats.get(k);
+                        int foundTheaterId = foundSeat.getTheater().getId();
+                        if (theaterId == foundTheaterId) {
+                            throw new CustomException(ErrorCode.SEAT_CONFLICT);
+                        }
+                    }
+                }
+
+                Seat seat = seatRepository.save(Seat.builder()
+                        .seatRow(seatRowArr[i])
+                        .seatNum(j)
+                        .seatType(seatTypeArr[i])
+                        .seatPrice(seatPriceArr[i])
+                        .theater(theater)
+                        .build());
+
+                // 생성된 좌석을 List 화 한다.
+                seatList.add(seat);
+            }
+
+        }
+
+        return seatList;
+    }
+
+    // 극장 및 좌석 생성
     public TheaterDto createTheater(CreateTheater.Request request) {
 
         Company company = findCompany(request.getCompanyId());
@@ -55,7 +99,7 @@ public class TheaterService {
         theaterRepository.save(theater);
 
         // 좌석 타입 생성 -> 좌석 생성 -> 좌석 리스트 작성
-        List<Seat> seatList = seatService.createSeat(
+        List<Seat> seatList = createSeat(
                 theater.getId(), request.getSeatTypeArr(), request.getSeatRowArr(), request.getSeatPriceArr(), request.getSeatNumArr());
 
         // 생성 시간 넣기
@@ -67,7 +111,7 @@ public class TheaterService {
         LocalDateTime createdAt = LocalDateTime.parse(formattedNow, formatter);
 
         // 다시 저장
-        theater.setCreatedAt(createdAt);
+        theater.createTheater(createdAt);
         theaterRepository.save(theater);
 
         TheaterDto theaterDto = TheaterDto.fromEntity(theater);
@@ -76,7 +120,7 @@ public class TheaterService {
         return theaterDto;
     }
 
-    // 극장 조회 - 누구나 가능
+    // 극장 및 좌석 조회 - 누구나 가능
     public TheaterDto readTheater(int theaterId) {
 
         // 극장 정보와 좌석 정보 불러오기
@@ -89,7 +133,7 @@ public class TheaterService {
         return theaterDto;
     }
 
-    // 극장 수정
+    // 극장 및 좌석 수정
     @Transactional
     public TheaterDto updateTheater(UpdateTheater.Request request) {
 
@@ -98,11 +142,6 @@ public class TheaterService {
         Theater theater = findTheater(request.getTheaterId());
 
         // 좌석 정보를 제외한 모든 내용 업데이트
-        theater.setTheaterName(request.getTheaterName());
-        theater.setTheaterAdress(request.getTheaterAdress());
-        theater.setSeatTotalCount(request.getSeatTotalCount());
-        theater.setSeatRowCount(request.getSeatRowCount());
-
         // 수정 시간 넣기
         LocalDateTime now = LocalDateTime.now();
         // DateTimeFormatter를 사용하여 날짜와 시간 형식을 포맷
@@ -110,11 +149,11 @@ public class TheaterService {
         String formattedNow = now.format(formatter);
         // 타입을 LocalDateTime 으로
         LocalDateTime updatedAt = LocalDateTime.parse(formattedNow, formatter);
-        theater.setUpdatedAt(updatedAt);
+        theater.changeTheater(request, updatedAt);
 
         // 좌석 모두 삭제 후 다시 생성
         seatRepository.deleteAllByTheater(theater);
-        List<Seat> seatList = seatService.createSeat(
+        List<Seat> seatList = createSeat(
                 theater.getId(), request.getSeatTypeArr(), request.getSeatRowArr(), request.getSeatPriceArr(), request.getSeatNumArr());
         TheaterDto theaterDto = TheaterDto.fromEntity(theater);
         theaterDto.setSeatList(seatList);
@@ -122,7 +161,7 @@ public class TheaterService {
         return theaterDto;
     }
 
-    // 극장 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
+    // 극장 및 좌석 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
     @Transactional
     public TheaterDto deleteTheater(int theaterId, int companyId) {
 
@@ -138,7 +177,7 @@ public class TheaterService {
         String formattedNow = now.format(formatter);
         // 타입을 LocalDateTime 으로
         LocalDateTime deletedAt = LocalDateTime.parse(formattedNow, formatter);
-        theater.setDeletedAt(deletedAt);
+        theater.deleteTheater(deletedAt);
 
         TheaterDto theaterDto = TheaterDto.fromEntity(theater);
         theaterDto.setSeatList(seatList);

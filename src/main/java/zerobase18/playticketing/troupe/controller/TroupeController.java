@@ -37,7 +37,7 @@ public class TroupeController {
      * 회원 가입
      */
     @PostMapping("/signup")
-    public ResponseEntity<?> sellerSignUp(@RequestBody @Valid TroupeSignUpDto signUpDto) {
+    public ResponseEntity<?> troupeSignUp(@RequestBody @Valid TroupeSignUpDto signUpDto) {
 
         return ResponseEntity.ok().body(
                 signUpDto.from(troupeService.signUp(signUpDto))
@@ -48,7 +48,7 @@ public class TroupeController {
      * 로그인
      */
     @PostMapping("/signin")
-    public ResponseEntity<?> sellerSignIn(@RequestBody @Valid SignInDto sign) {
+    public ResponseEntity<?> troupeSignIn(@RequestBody @Valid SignInDto sign) {
 
         Troupe troupe = authService.authenticatedTroupe(sign);
 

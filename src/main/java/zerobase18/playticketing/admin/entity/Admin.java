@@ -20,6 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(name = "admins")
 public class Admin extends BaseEntity implements UserDetails {
 
     @Id

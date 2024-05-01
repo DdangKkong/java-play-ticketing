@@ -4,8 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
+import zerobase18.playticketing.global.type.PlayGenre;
+import zerobase18.playticketing.global.type.Ratings;
+import zerobase18.playticketing.global.type.ReservationYN;
 import zerobase18.playticketing.play.entity.Schedule;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -24,10 +28,10 @@ public class CreatePlay {
         private String playDetails;
         @NotBlank
         private String posterUrl;
-        @NotBlank
-        private String ratings;
-        @NotBlank
-        private String playGenre;
+        @NotNull
+        private Ratings ratings;
+        @NotNull
+        private PlayGenre playGenre;
         @NotNull
         private Date playStartDate;
         @NotNull
@@ -37,7 +41,7 @@ public class CreatePlay {
         @NotBlank
         private String actors;
         @NotNull
-        private boolean reservationYN;
+        private ReservationYN reservationYN;
 
         /**
          * 스케줄은 상영날짜, 상영시간이 각각 들어있는 이차원 배열로 받아온다
@@ -59,16 +63,18 @@ public class CreatePlay {
 
         private int playId;
         private int theaterId;
+        private int troupeId;
         private String playName;
         private String playDetails;
         private String posterUrl;
-        private String ratings;
-        private String playGenre;
+        private Ratings ratings;
+        private PlayGenre playGenre;
         private Date playStartDate;
         private Date playEndDate;
         private String runtime;
         private String actors;
-        private boolean reservationYN;
+        private ReservationYN reservationYN;
+        private LocalDateTime createdAt;
         private List<Schedule> scheduleList;
         private boolean scheduleSeatYN;
 
@@ -76,6 +82,7 @@ public class CreatePlay {
             return Response.builder()
                     .playId(playDto.getPlayId())
                     .theaterId(playDto.getTheaterId())
+                    .troupeId(playDto.getTroupeId())
                     .playName(playDto.getPlayName())
                     .playDetails(playDto.getPlayDetails())
                     .posterUrl(playDto.getPosterUrl())
@@ -85,7 +92,8 @@ public class CreatePlay {
                     .playEndDate(playDto.getPlayEndDate())
                     .runtime(playDto.getRuntime())
                     .actors(playDto.getActors())
-                    .reservationYN(playDto.isReservationYN())
+                    .reservationYN(playDto.getReservationYN())
+                    .createdAt(playDto.getCreatedAt())
                     .scheduleList(playDto.getScheduleList())
                     .scheduleSeatYN(playDto.isScheduleSeatYN())
                     .build();
