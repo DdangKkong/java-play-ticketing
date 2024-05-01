@@ -33,6 +33,9 @@ public class ReservationDto {
 
     private int cancelAmount;           // 환불 가능한 금액
 
+    // parameter
+    private int[] scheduleSeatId;       // 스케줄별 좌석 고유번호
+
     public static ReservationDto fromEntity(Reservation reservation){
         return ReservationDto.builder()
                 .reserId(reservation.getReserId())

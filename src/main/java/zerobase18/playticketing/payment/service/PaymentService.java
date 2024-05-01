@@ -241,7 +241,7 @@ public class PaymentService {
     private void cancelPossible(Reservation reservation) {
         // 환불 받는 금액이 0원인경우
         if (reservation.getCancelAmount() <= 0){
-            throw new CustomException(ZERO_CANCEL_AMOUNT);
+            throw new CustomException(INVALID_CANCEL_AMOUNT);
         }
     }
 
