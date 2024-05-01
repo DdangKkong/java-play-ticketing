@@ -2,7 +2,6 @@ package zerobase18.playticketing.play.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.global.type.ErrorCode;
@@ -132,7 +131,6 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 생성
-    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @Transactional
     public PlayDto createPlay(CreatePlay.Request request) throws ParseException {
         Troupe troupe = findTroupe(request.getTroupeId());
@@ -202,7 +200,6 @@ public class PlayService {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 수정
-    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @Transactional
     public PlayDto updatePlay(UpdatePlay.Request request) throws ParseException {
         Play play = findPlay(request.getPlayId());
@@ -245,7 +242,6 @@ public class PlayService {
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
     // (deletedAt 데이터를 넣어주고 나머지 데이터는 보관한다, deletedAt 에 데이터가 있으면 프론트에서 보이지 않게 처리한다)
-    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @Transactional
     public PlayDto deletePlay(int troupeId, int playId) {
         Play play = findPlay(playId);

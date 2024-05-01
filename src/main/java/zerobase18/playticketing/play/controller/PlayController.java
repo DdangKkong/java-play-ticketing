@@ -3,6 +3,7 @@ package zerobase18.playticketing.play.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import zerobase18.playticketing.play.dto.*;
 import zerobase18.playticketing.play.service.PlayService;
@@ -17,6 +18,7 @@ public class PlayController {
     private final PlayService playService;
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 생성
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @PostMapping
     public ResponseEntity<CreatePlay.Response> createPlay(
             @RequestBody @Valid CreatePlay.Request request
@@ -38,6 +40,7 @@ public class PlayController {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 수정
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @PutMapping
     public ResponseEntity<UpdatePlay.Response> updatePlay(
             @RequestBody @Valid UpdatePlay.Request request
@@ -48,6 +51,7 @@ public class PlayController {
     }
 
     // 연극, 연극스케줄, 연극스케줄 별 좌석 삭제
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
     @DeleteMapping
     public ResponseEntity<DeletePlay.Response> deletePlay(
             @RequestParam(name = "troupeId") int troupeId,

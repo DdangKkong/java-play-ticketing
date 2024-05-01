@@ -2,7 +2,6 @@ package zerobase18.playticketing.theater.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import zerobase18.playticketing.company.entity.Company;
 import zerobase18.playticketing.company.repository.CompanyRepository;
@@ -85,7 +84,6 @@ public class TheaterService {
     }
 
     // 극장 및 좌석 생성
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
     public TheaterDto createTheater(CreateTheater.Request request) {
 
         Company company = findCompany(request.getCompanyId());
@@ -136,7 +134,6 @@ public class TheaterService {
     }
 
     // 극장 및 좌석 수정
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
     @Transactional
     public TheaterDto updateTheater(UpdateTheater.Request request) {
 
@@ -165,7 +162,6 @@ public class TheaterService {
     }
 
     // 극장 및 좌석 삭제 - deletedAt 만 넣어주고 나머지 데이터는 보관한다, 프론트에서 deletedAt 에 데이터가 있는것을 보고 안보이게 처리
-    @PreAuthorize("hasRole('ROLE_COMPANY')")
     @Transactional
     public TheaterDto deleteTheater(int theaterId, int companyId) {
 
