@@ -26,14 +26,14 @@ public class UpdateTheater {
         private int seatTotalCount;
         @NotNull
         private int seatRowCount;
-        // 아래 3개 행렬 모두 행렬의 크기가 seatType의 갯수이고 같다.
+        // 아래 3개 배열 모두 배열의 크기가 seatType의 갯수이고 같다.
         @NotNull
         private String[] seatTypeArr;
         @NotNull
         private char[] seatRowArr;
         @NotNull
         private int[] seatPriceArr;
-        // 시작번호, 끝번호가 들어간 행렬 (크기 : i * 2)
+        // 시작번호, 끝번호가 들어간 배열 (크기 : i * 2)
         @NotNull
         private int[][] seatNumArr;
 

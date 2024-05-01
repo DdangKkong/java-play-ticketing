@@ -3,6 +3,9 @@ package zerobase18.playticketing.play.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import zerobase18.playticketing.global.type.PlayGenre;
+import zerobase18.playticketing.global.type.Ratings;
+import zerobase18.playticketing.global.type.ReservationYN;
 import zerobase18.playticketing.play.entity.Play;
 import zerobase18.playticketing.play.entity.Schedule;
 import zerobase18.playticketing.play.entity.ScheduleSeat;
@@ -22,6 +25,9 @@ public class PlayDto {
     // 극장 고유번호
     private int theaterId;
 
+    // 연극업체 고유번호
+    private int troupeId;
+
     // 연극명
     private String playName;
 
@@ -32,10 +38,10 @@ public class PlayDto {
     private String posterUrl;
 
     // 관람 등급
-    private String ratings;
+    private Ratings ratings;
 
     // 연극 장르
-    private String playGenre;
+    private PlayGenre playGenre;
 
     // 연극 시작일
     private Date playStartDate;
@@ -50,7 +56,7 @@ public class PlayDto {
     private String actors;
 
     // 연극 예약가능여부
-    private boolean reservationYN;
+    private ReservationYN reservationYN;
 
     // 작성 일시
     private LocalDateTime createdAt;
@@ -74,6 +80,7 @@ public class PlayDto {
         return PlayDto.builder()
                 .playId(play.getId())
                 .theaterId(play.getTheater().getId())
+                .troupeId(play.getTroupe().getTroupeId())
                 .playName(play.getPlayName())
                 .playDetails(play.getPlayDetails())
                 .posterUrl(play.getPosterUrl())
@@ -83,7 +90,7 @@ public class PlayDto {
                 .playEndDate(play.getPlayEndDate())
                 .runtime(play.getRuntime())
                 .actors(play.getActors())
-                .reservationYN(play.isReservationYN())
+                .reservationYN(play.getReservationYN())
                 .createdAt(play.getCreatedAt())
                 .updatedAt(play.getUpdatedAt())
                 .deletedAt(play.getDeletedAt())

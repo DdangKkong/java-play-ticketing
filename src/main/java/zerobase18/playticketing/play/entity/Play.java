@@ -2,14 +2,18 @@ package zerobase18.playticketing.play.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import zerobase18.playticketing.global.type.PlayGenre;
+import zerobase18.playticketing.global.type.Ratings;
+import zerobase18.playticketing.global.type.ReservationYN;
+import zerobase18.playticketing.play.dto.UpdatePlay;
 import zerobase18.playticketing.theater.entity.Theater;
+import zerobase18.playticketing.troupe.entity.Troupe;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,12 +37,14 @@ public class Play {
     private String posterUrl;
 
     // 관람 등급
+    @Enumerated(EnumType.STRING)
     @Column(name = "ratings")
-    private String ratings;
+    private Ratings ratings;
 
     // 연극 장르
+    @Enumerated(EnumType.STRING)
     @Column(name = "play_genre")
-    private String playGenre;
+    private PlayGenre playGenre;
 
     // 연극 시작일
     @Column(name = "play_start_date")
@@ -57,8 +63,9 @@ public class Play {
     private String actors;
 
     // 연극 예약가능여부
+    @Enumerated(EnumType.STRING)
     @Column(name = "reservationYN")
-    private boolean reservationYN;
+    private ReservationYN reservationYN;
 
     // 작성 일시
     @Column(name = "created_at")
@@ -77,4 +84,31 @@ public class Play {
     @JoinColumn(name = "theater_id")
     private Theater theater;
 
+    // 연극업체 고유번호
+    @ManyToOne
+    @JoinColumn(name = "troupe_id")
+    private Troupe troupe;
+
+    public void createPlay(LocalDateTime createdAt){
+        this.createdAt = createdAt;
+    }
+
+    public void changePlay(UpdatePlay.Request request, Theater theater, LocalDateTime updatedAt) {
+        this.theater = theater;
+        this.playName = request.getPlayName();
+        this.playDetails = request.getPlayDetails();
+        this.posterUrl = request.getPosterUrl();
+        this.ratings = request.getRatings();
+        this.playGenre = request.getPlayGenre();
+        this.playStartDate = request.getPlayStartDate();
+        this.playEndDate = request.getPlayEndDate();
+        this.runtime = request.getRuntime();
+        this.actors = request.getActors();
+        this.reservationYN = request.getReservationYN();
+        this.updatedAt = updatedAt;
+    }
+
+    public void deletePlay(LocalDateTime deletedAt){
+        this.deletedAt = deletedAt;
+    }
 }

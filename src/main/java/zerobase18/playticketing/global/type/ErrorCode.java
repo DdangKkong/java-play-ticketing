@@ -15,9 +15,8 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류입니다."),
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 
-
     /**
-     * user
+     * user, company, troupe
      */
     ADMIN_NOT_FOUND(HttpStatus.BAD_REQUEST, "관리자를 찾을 수 없습니다."),
     ALREADY_USE_LOGIN_ID(HttpStatus.BAD_REQUEST, "이미 사용중인 아이디 입니다."),
@@ -26,7 +25,8 @@ public enum ErrorCode {
     USER_INVALID(HttpStatus.BAD_REQUEST, "잘못된 유저 정보입니다."),
     SELLER_INVALID(HttpStatus.BAD_REQUEST, "잘못된 연극업체 정보입니다."),
     UN_REGISTERED_USER(HttpStatus.BAD_REQUEST, "이미 탈퇴한 고객 입니다."),
-    COMPANY_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 극장업체"),
+    TROUPE_NOT_MATCH(HttpStatus.BAD_REQUEST, "잘못된 연극업체 정보입니다."),
+    COMPANY_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 극장업체입니다."),
     USER_LOCK(HttpStatus.BAD_REQUEST, "계정이 비활성화 되었습니다. 관리자에게 문의해주세요."),
 
     /**
@@ -51,7 +51,6 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND(HttpStatus.BAD_REQUEST, "리뷰를 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "댓글을 찾을 수 없습니다."),
     CUSTOMER_NOT_MATCH(HttpStatus.BAD_REQUEST, "작성자를 찾을 수 없습니다."),
-
 
     /**
      * Q&A
