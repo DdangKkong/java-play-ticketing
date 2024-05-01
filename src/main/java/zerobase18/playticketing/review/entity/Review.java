@@ -91,7 +91,7 @@ public class Review extends BaseEntity {
         updateLikeCount();
     }
 
-    // 댓글 갯수 카운팅
+    // 좋아요 갯수 카운팅
     public int updateLikeCount() {
         if (likes != null) {
             return likeCount = likes.size();
