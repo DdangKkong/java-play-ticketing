@@ -19,12 +19,15 @@ public class AnswerDto {
 
     private String createdAt;
 
+    private String updatedAt;
+
     public static AnswerDto fromEntity(Answer answer) {
 
         return AnswerDto.builder()
                 .name(answer.getAdmin().getName())
                 .content(answer.getContent())
                 .createdAt(answer.getCreatedAt())
+                .updatedAt(answer.getUpdatedAt())
                 .build();
 
     }

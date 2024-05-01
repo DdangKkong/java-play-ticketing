@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zerobase18.playticketing.auth.dto.SellerSignUpDto;
+import zerobase18.playticketing.auth.dto.CompanySignUpDto;
 import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.company.dto.CompanyDto;
@@ -14,8 +14,6 @@ import zerobase18.playticketing.company.entity.Company;
 import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.company.service.CompanyService;
 import zerobase18.playticketing.global.exception.CustomException;
-import zerobase18.playticketing.troupe.dto.TroupeDto;
-import zerobase18.playticketing.troupe.entity.Troupe;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +36,7 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     @Transactional
-    public CompanyDto signUp(SellerSignUpDto signUpDto) {
+    public CompanyDto signUp(CompanySignUpDto signUpDto) {
 
         boolean exists = companyRepository.existsByLoginId(signUpDto.getLoginId());
 

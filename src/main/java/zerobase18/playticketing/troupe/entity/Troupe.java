@@ -23,6 +23,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "troupes")
 public class Troupe extends BaseEntity implements UserDetails {
 
     // 연극 업체 고유 번호

@@ -9,7 +9,9 @@ import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.qna.dto.AnswerDto;
+import zerobase18.playticketing.qna.dto.AnswerUpdate;
 import zerobase18.playticketing.qna.dto.CreateAnswer;
+import zerobase18.playticketing.qna.dto.QuestionDto;
 import zerobase18.playticketing.qna.entity.Answer;
 import zerobase18.playticketing.qna.entity.Question;
 import zerobase18.playticketing.qna.repository.AnswerRepository;
@@ -20,6 +22,7 @@ import zerobase18.playticketing.qna.type.QuestionState;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.Optional;
 
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 import static zerobase18.playticketing.qna.type.QuestionState.COMPLETE;
@@ -77,5 +80,31 @@ public class AnswerServiceImpl implements AnswerService {
         question.setAnswer(save);
 
         return AnswerDto.fromEntity(save);
+    }
+
+    @Override
+    @Transactional
+    public AnswerDto updateAnswer(Integer adminId, Integer answerId, AnswerUpdate.Request request) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        Answer answer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(QUESTION_NOT_FOUND));
+
+
+
+        if (!answer.getAdmin().equals(admin)) {
+            throw new CustomException(QUESTION_NOT_MATCH);
+        }
+
+        // 답변 수정 시 입력을 안하면 이전 제목과 내용이 저장.
+
+        String content = Optional.ofNullable(request.getContent()).orElse(answer.getContent());
+
+        answer.setContent(content);
+
+
+
+        return AnswerDto.fromEntity(answer);
     }
 }

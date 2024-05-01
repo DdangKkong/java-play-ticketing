@@ -3,13 +3,11 @@ package zerobase18.playticketing.qna.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import zerobase18.playticketing.admin.entity.Admin;
 import zerobase18.playticketing.customer.entity.Customer;
+import zerobase18.playticketing.global.entity.BaseEntity;
 import zerobase18.playticketing.qna.type.QuestionState;
 
 @Entity
@@ -17,7 +15,8 @@ import zerobase18.playticketing.qna.type.QuestionState;
 @AllArgsConstructor
 @Builder
 @Getter
-public class Answer {
+@Setter
+public class Answer extends BaseEntity {
 
     // 답변 고유 번호
     @Id
