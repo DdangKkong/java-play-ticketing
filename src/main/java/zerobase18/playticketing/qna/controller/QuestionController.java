@@ -14,6 +14,7 @@ import zerobase18.playticketing.global.type.ErrorCode;
 import zerobase18.playticketing.qna.dto.*;
 import zerobase18.playticketing.qna.entity.Question;
 import zerobase18.playticketing.qna.repository.QuestionRepository;
+import zerobase18.playticketing.qna.service.AnswerService;
 import zerobase18.playticketing.qna.service.QuestionService;
 
 import java.util.List;
@@ -30,6 +31,8 @@ public class QuestionController {
     private final QuestionService questionService;
 
     private final QuestionRepository questionRepository;
+
+    private final AnswerService answerService;
 
 
     /**
@@ -102,7 +105,7 @@ public class QuestionController {
      */
     @PutMapping
     @PreAuthorize("hasRole('ROLE_CUSTOMER')")
-    public QuestionUpdate.Response updateCustomer(
+    public QuestionUpdate.Response updateQuestion(
             @RequestParam @Valid Integer customerId,
             @RequestParam @Valid Integer questionId,
             @RequestBody @Valid QuestionUpdate.Request request

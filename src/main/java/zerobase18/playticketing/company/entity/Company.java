@@ -21,6 +21,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "companies")
 // 극장 업체
 public class Company extends BaseEntity implements UserDetails {
 

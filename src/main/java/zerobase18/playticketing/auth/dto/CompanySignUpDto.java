@@ -9,7 +9,7 @@ import zerobase18.playticketing.company.dto.CompanyDto;
 @Data
 @Builder
 @AllArgsConstructor
-public class SellerSignUpDto {
+public class CompanySignUpDto {
 
     private String loginId;
 
@@ -26,9 +26,9 @@ public class SellerSignUpDto {
     private String address;
 
 
-    public SellerSignUpDto from(CompanyDto companyDto) {
+    public CompanySignUpDto from(CompanyDto companyDto) {
 
-        return SellerSignUpDto.builder()
+        return CompanySignUpDto.builder()
                 .loginId(companyDto.getLoginId())
                 .password(companyDto.getPassword())
                 .name(companyDto.getName())

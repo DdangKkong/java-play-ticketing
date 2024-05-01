@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.global.entity.BaseEntity;
+import zerobase18.playticketing.payment.type.ReserStat;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -22,6 +23,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "customers")
 public class Customer extends BaseEntity implements UserDetails {
 
     // 고객 고유 번호
@@ -48,6 +50,7 @@ public class Customer extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserState userState;
 
+
     // 고객 이름
     @NotNull
     private String name;
@@ -71,6 +74,8 @@ public class Customer extends BaseEntity implements UserDetails {
     // 탈퇴 일시
     @LastModifiedDate
     private String unRegisteredAt;
+
+    private int loginAttempt;
 
 
 
@@ -105,4 +110,13 @@ public class Customer extends BaseEntity implements UserDetails {
     public boolean isEnabled() {
         return false;
     }
+
+    public void incrementLoginAttempts() {
+        loginAttempt++;
+    }
+
+    public void resetLoginAttempts() {
+        loginAttempt = 0;
+    }
+
 }
