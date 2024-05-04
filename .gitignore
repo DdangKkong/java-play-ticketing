@@ -38,3 +38,4 @@ out/
 
 ### ysg ###
 **/src/main/resources/application-API-KEY.yml
+**/src/main/resources/application.yml

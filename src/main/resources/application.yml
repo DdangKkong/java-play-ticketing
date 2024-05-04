@@ -1,9 +1,22 @@
 spring:
+  data:
+    redis:
+      host: 172.17.0.3
+      port: 6379
+      url: jdbc:redis://redis:@172.17.0.3:6379
+      connect-timeout: 10
   datasource:
 
-    url: jdbc:mysql://119.196.101.35:3306/payment?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: payment
-    password: 1234qwer!
+#    url: jdbc:mysql://119.196.101.35:3306/payment?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    username: payment
+#    password: 1234qwer!
+
+#    url: jdbc:mysql://localhost:3306/playticketing?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+#    username: root
+#    password: 1234
+    url: database-payment.cde4a8am48qh.ap-northeast-2.rds.amazonaws.com
+    username: admin
+    password: qwer1234!
 
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
