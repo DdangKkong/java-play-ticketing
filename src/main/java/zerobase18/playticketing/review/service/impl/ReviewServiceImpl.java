@@ -184,10 +184,10 @@ public class ReviewServiceImpl implements ReviewService {
 
         likeRepository.deleteAllByReview(review);
 
-        if (review.getComment().isEmpty()) {
+        if (review.getComments().isEmpty()) {
             reviewRepository.delete(review);
         } else {
-            commentRepository.deleteAll(review.getComment());
+            commentRepository.deleteAll(review.getComments());
             reviewRepository.delete(review);
         }
 

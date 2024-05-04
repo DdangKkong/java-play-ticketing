@@ -112,11 +112,16 @@ public class Customer extends BaseEntity implements UserDetails {
     }
 
     public void incrementLoginAttempts() {
-        loginAttempt++;
+        this.loginAttempt++;
     }
 
     public void resetLoginAttempts() {
-        loginAttempt = 0;
+        this.loginAttempt = 0;
+    }
+
+    public Customer setInactive() {
+        userState = UserState.IN_ACTIVE;
+        return this;
     }
 
 }
