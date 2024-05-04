@@ -12,8 +12,6 @@ import zerobase18.playticketing.admin.repository.AdminRepository;
 import zerobase18.playticketing.admin.service.AdminService;
 import zerobase18.playticketing.auth.dto.AdminSignUpDto;
 import zerobase18.playticketing.auth.type.UserState;
-import zerobase18.playticketing.customer.dto.CustomerDto;
-import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.global.exception.CustomException;
 
 import java.time.LocalDateTime;
@@ -21,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static zerobase18.playticketing.auth.type.UserState.REGISTERED;
+import static zerobase18.playticketing.auth.type.UserState.ACTIVE;
 import static zerobase18.playticketing.auth.type.UserType.ADMIN;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 
@@ -32,6 +30,8 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+
 
 
     /**
@@ -53,7 +53,7 @@ public class AdminServiceImpl implements AdminService {
                 .loginId(user.getLoginId())
                 .password(user.getPassword())
                 .userType(ADMIN)
-                .userState(REGISTERED)
+                .userState(ACTIVE)
                 .name(user.getName())
                 .phone(user.getPhone())
                 .email(user.getEmail())

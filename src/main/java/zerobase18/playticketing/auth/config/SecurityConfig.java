@@ -18,40 +18,40 @@ import zerobase18.playticketing.auth.security.AuthenticationFilter;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+
 public class SecurityConfig {
 
     private final AuthenticationFilter authenticationFilter;
 
+
     private static final String[] AUTH = {
             "/customer/signup", "/customer/signin",
-            "/seller/signup", "/seller/signup"
+            "/company/signup", "/company/signup"
     };
-    /**
-     * 권한 설정
-     */
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // CSRF, CORS
+        // CSRF, CORS 설정
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(Customizer.withDefaults());
 
+        // 세션 관리 설정
         http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
                 SessionCreationPolicy.STATELESS
         ));
 
+        // 권한 설정
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(AUTH).permitAll()
-                                   
-                .requestMatchers("/theaters/**").hasRole("COMPANY")
+                // .requestMatchers("/theaters/**").hasRole("COMPANY")
                 .requestMatchers("/answer").hasRole("ADMIN")
-                                   
                 .anyRequest().permitAll());
 
+        // AuthenticationFilter 추가
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-
 
         return http.build();
     }
 }
+
+

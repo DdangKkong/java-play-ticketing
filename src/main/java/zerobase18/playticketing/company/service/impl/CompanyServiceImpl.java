@@ -50,7 +50,7 @@ public class CompanyServiceImpl implements CompanyService {
                 .loginId(signUpDto.getLoginId())
                 .password(signUpDto.getPassword())
                 .userType(UserType.COMPANY)
-                .userState(UserState.REGISTERED)
+                .userState(UserState.ACTIVE)
                 .name(signUpDto.getName())
                 .company(signUpDto.getCompany())
                 .phone(signUpDto.getPhone())

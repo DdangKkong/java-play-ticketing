@@ -23,6 +23,8 @@ import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.troupe.entity.Troupe;
 import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
+
+import static zerobase18.playticketing.auth.type.UserState.IN_ACTIVE;
 import static zerobase18.playticketing.auth.type.UserState.UN_REGISTERED;
 import static zerobase18.playticketing.auth.type.UserType.*;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
@@ -42,13 +44,28 @@ public class AuthService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+
+
+
+
 
     public Customer authenticatedCustomer(SignInDto sign) {
         Customer customer = checkCustomerLogInId(sign.getLoginId());
 
+        if (customer.getLoginAttempt() >= MAX_FAILED_ATTEMPTS) {
+
+            customer.setUserState(IN_ACTIVE);
+            customerRepository.save(customer);
+            throw new CustomException(USER_LOCK);
+        }
+
         validationState(customer.getUserState());
 
-        validationPassword(sign.getPassword(), customer.getPassword());
+        validationCustomerPassword(sign.getPassword(), customer.getPassword());
+
+        customer.resetLoginAttempts();
+        customerRepository.save(customer);
 
         return customer;
     }
@@ -159,11 +176,33 @@ public class AuthService implements UserDetailsService {
         if (state.equals(UN_REGISTERED)) {
             throw new CustomException(UN_REGISTERED_USER);
         }
+
+        if (state.equals(IN_ACTIVE)) {
+            throw new CustomException(USER_LOCK);
+        }
+
+    }
+
+    private void validationCustomerPassword(String password, String checkPassword) {
+        if (!passwordEncoder.matches(password, checkPassword)) {
+
+            Customer customer = customerRepository.findByPassword(checkPassword);
+
+            if (customer == null) {
+                throw new CustomException(USER_NOT_FOUND);
+            }
+
+            customer.incrementLoginAttempts();
+            customerRepository.save(customer);
+
+            throw new CustomException(PASSWORD_NOT_MATCH);
+        }
     }
 
     private void validationPassword(String password, String checkPassword) {
         if (!passwordEncoder.matches(password, checkPassword)) {
             throw new CustomException(PASSWORD_NOT_MATCH);
         }
+
     }
 }
