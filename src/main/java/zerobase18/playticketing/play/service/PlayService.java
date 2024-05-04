@@ -95,7 +95,6 @@ public class PlayService {
                                                     .build());
                 // 리스트에 추가
                 scheduleList.add(schedule);
-
             }
         }
 
