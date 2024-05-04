@@ -32,4 +32,7 @@ public interface CustomerService {
      */
     CustomerDto deleteCustomer(String loginId, String password);
 
+
+
+
 }

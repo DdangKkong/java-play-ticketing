@@ -17,6 +17,7 @@ import zerobase18.playticketing.customer.dto.SearchCustomer;
 import zerobase18.playticketing.customer.dto.UpdateCustomerDto;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.service.CustomerService;
+import zerobase18.playticketing.global.exception.CustomException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,5 +108,6 @@ public class CustomerController {
                 customerService.deleteCustomer(request.getLoginId(), request.getPassword())
         );
     }
+
 
 }

@@ -45,8 +45,8 @@ public class ReviewDto {
          * 댓글 목록 리스트 형태
          */
         List<CommentDto> comments;
-        if (review.getComment() != null) {
-            comments = review.getComment().stream()
+        if (review.getComments() != null) {
+            comments = review.getComments().stream()
                     // 최신 순으로 정렬
                     .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
                     .map(comment -> CommentDto.builder()
@@ -79,7 +79,7 @@ public class ReviewDto {
                 .playName(review.getReservation().getReserPlayName())
                 .content(review.getContent())
                 .rating(review.getRating())
-                .commentCount(review.getComment() != null ? review.getComment().size() : 0) // 널 체크 후 사이즈 계산
+                .commentCount(review.getComments() != null ? review.getComments().size() : 0) // 널 체크 후 사이즈 계산
                 .viewCount(review.getViewCount())
                 .likeCount(review.getLikeCount())
                 .commentDto(comments)
