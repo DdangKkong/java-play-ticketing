@@ -114,9 +114,19 @@ public class CommentServiceImpl implements CommentService {
             throw new CustomException(CUSTOMER_NOT_MATCH);
         }
 
+        // 댓글을 삭제하고자 하는 리뷰를 가져온다.
+        Review review = comment.getReview();
 
-        commentRepository.delete(comment);
+        if (review != null) {
 
+            commentRepository.delete(comment);
 
+            review.getComments().remove(comment);
+            review.updateCommentCount();
+            reviewRepository.save(review);
+
+        } else {
+            throw new CustomException(REVIEW_NOT_FOUND);
+        }
     }
 }

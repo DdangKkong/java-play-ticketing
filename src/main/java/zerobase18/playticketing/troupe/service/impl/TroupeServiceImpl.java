@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static zerobase18.playticketing.auth.type.UserState.REGISTERED;
+import static zerobase18.playticketing.auth.type.UserState.ACTIVE;
 import static zerobase18.playticketing.auth.type.UserState.UN_REGISTERED;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 
@@ -50,7 +50,7 @@ public class TroupeServiceImpl implements TroupeService {
                 .loginId(signUpDto.getLoginId())
                 .password(signUpDto.getPassword())
                 .userType(UserType.TROUPE)
-                .userState(REGISTERED)
+                .userState(ACTIVE)
                 .name(signUpDto.getName())
                 .company(signUpDto.getCompany())
                 .phone(signUpDto.getPhone())

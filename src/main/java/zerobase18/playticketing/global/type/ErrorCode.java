@@ -28,6 +28,8 @@ public enum ErrorCode {
     TROUPE_NOT_MATCH(HttpStatus.BAD_REQUEST, "잘못된 연극업체 정보입니다."),
     COMPANY_INVALID(HttpStatus.BAD_REQUEST, "유효하지 않은 극장업체입니다."),
     USER_LOCK(HttpStatus.BAD_REQUEST, "계정이 비활성화 되었습니다. 관리자에게 문의해주세요."),
+    CUSTOMER_EMAIL_NOT_MATCH(HttpStatus.BAD_REQUEST, "계정과 이메일이 일치하지 않습니다."),
+    USER_ALREADY_ACTIVE(HttpStatus.BAD_REQUEST, "계정이 이미 활성화 상태입니다."),
 
     /**
      * play

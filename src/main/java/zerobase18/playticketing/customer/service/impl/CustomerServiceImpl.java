@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static zerobase18.playticketing.auth.type.UserState.REGISTERED;
+import static zerobase18.playticketing.auth.type.UserState.*;
 import static zerobase18.playticketing.global.type.ErrorCode.*;
 
 @AllArgsConstructor
@@ -30,6 +30,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+
+
+
 
 
     /**
@@ -52,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .loginId(user.getLoginId())
                 .password(user.getPassword())
                 .userType(UserType.CUSTOMER)
-                .userState(REGISTERED)
+                .userState(ACTIVE)
                 .name(user.getName())
                 .birth(user.getBirth())
                 .phone(user.getPhone())
@@ -123,6 +126,8 @@ public class CustomerServiceImpl implements CustomerService {
                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
 
+
+
        if (!passwordEncoder.matches(password, customer.getPassword())) {
            throw new CustomException(PASSWORD_NOT_MATCH);
        }
@@ -137,6 +142,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         return CustomerDto.fromEntity(customer);
     }
+
 
     private void validateCustomer(Customer customer) {
         if (customer.getUserState().equals(UserState.UN_REGISTERED)) {

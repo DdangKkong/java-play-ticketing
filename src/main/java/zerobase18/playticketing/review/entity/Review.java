@@ -40,7 +40,7 @@ public class Review extends BaseEntity {
     @Range(min = 1, max = 5, message = "평점은 1~5점 까지만 등록이 가능합니다.")
     private Integer rating;
 
-    private Long viewCount = 0L;
+    private Long viewCount;
 
 
     // 댓글 갯수
@@ -59,7 +59,7 @@ public class Review extends BaseEntity {
     // 댓글은 여러 개 이므로 List로 반환
     @OneToMany
     @Nullable
-    private List<Comment> comment;
+    private List<Comment> comments;
 
     @OneToMany
     @Nullable
@@ -67,17 +67,17 @@ public class Review extends BaseEntity {
 
     // 댓글 생성 시 리뷰 엔티티에 댓글 등록
     public void addComment(Comment newComment) {
-        if (comment == null) {
-            comment = new ArrayList<>();
+        if (comments == null) {
+            comments = new ArrayList<>();
         }
-        comment.add(newComment);
+        comments.add(newComment);
         updateCommentCount();
     }
 
     // 댓글 갯수 카운팅
     public int updateCommentCount() {
-        if (comment != null) {
-            return commentCount = comment.size();
+        if (comments != null) {
+            return commentCount = comments.size();
         } else {
             return commentCount = 0;
         }
@@ -99,6 +99,7 @@ public class Review extends BaseEntity {
             return likeCount = 0;
         }
     }
+
 
 
 }
