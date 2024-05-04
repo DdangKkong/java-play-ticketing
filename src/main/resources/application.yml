@@ -1,12 +1,10 @@
 spring:
-  
   data:
     redis:
       host: 127.0.0.1
       port: 6379
       url: jdbc:redis://redis:@127.0.0.1:6379
       connect-timeout: 10
-  
   datasource:
     url: jdbc:mysql://119.196.101.35:3306/payment?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: payment

@@ -25,7 +25,7 @@ public class Reservation {
     private int reserId;                // 예약 고유번호
 
     @ManyToOne
-    @JoinColumn(name = "customerId")
+    @JoinColumn(name = "customer_id")
     private Customer customerId;        // 고객 고유번호
 
     @Column(name = "reser_play_name")
