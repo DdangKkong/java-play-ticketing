@@ -84,6 +84,7 @@ public class TheaterService {
     }
 
     // 극장 및 좌석 생성
+    @Transactional
     public TheaterDto createTheater(CreateTheater.Request request) {
 
         Company company = findCompany(request.getCompanyId());
@@ -137,7 +138,7 @@ public class TheaterService {
     @Transactional
     public TheaterDto updateTheater(UpdateTheater.Request request) {
 
-        // 연극 업체 정보와 극장 정보 불러오기
+        // 극장 업체 정보와 극장 정보 불러오기
         Company company = findCompany(request.getCompanyId());
         Theater theater = findTheater(request.getTheaterId());
 
@@ -165,7 +166,7 @@ public class TheaterService {
     @Transactional
     public TheaterDto deleteTheater(int theaterId, int companyId) {
 
-        // 연극 업체 정보와 극장 정보, 좌석 정보 불러오기
+        // 극장 업체 정보와 극장 정보, 좌석 정보 불러오기
         Company company = findCompany(companyId);
         Theater theater = findTheater(theaterId);
         List<Seat> seatList = seatRepository.findAllByTheater(theater);

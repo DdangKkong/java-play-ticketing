@@ -95,7 +95,6 @@ public class PlayService {
                                                     .build());
                 // 리스트에 추가
                 scheduleList.add(schedule);
-
             }
         }
 
@@ -262,13 +261,6 @@ public class PlayService {
         // 다시 저장
         play.deletePlay(deletedAt);
 
-//        List<Schedule> scheduleList = scheduleRepository.findAllByPlay(play);
-//        // 좌석 삭제
-//        for (int i = 0; i < scheduleList.size(); i++) {
-//            scheduleSeatRepository.deleteAllBySchedule(scheduleList.get(i));
-//        }
-//        // 스케줄 삭제
-//        scheduleRepository.deleteAllByPlay(play);
         // playDto 생성
         return PlayDto.fromEntity(play);
     }
