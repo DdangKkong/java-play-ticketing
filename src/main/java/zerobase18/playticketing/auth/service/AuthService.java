@@ -3,6 +3,7 @@ package zerobase18.playticketing.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -43,6 +44,7 @@ public class AuthService implements UserDetailsService {
     private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
+
 
     private static final int MAX_FAILED_ATTEMPTS = 5;
 

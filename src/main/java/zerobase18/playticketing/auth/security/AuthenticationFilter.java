@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,11 +27,15 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     @Value("${spring.jwt.prefix}")
     private String tokenPrefix;
 
     @Value("${spring.jwt.header}")
     private String tokenHeader;
+
+
 
 
     @Override
@@ -38,10 +44,17 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 
         if (StringUtils.hasText(token) && this.tokenProvider.validateToken(token)) {
-            Authentication authentication = this.tokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info(String.format("[%s] -> %s", this.tokenProvider.getUserName(token), request.getRequestURI()));
+            String key = "JWT_TOKEN:" + tokenProvider.getCustomerPk(token);
+            String storedToken = redisTemplate.opsForValue().get(key);
 
+
+
+            if(Boolean.TRUE.equals(redisTemplate.hasKey(key)) && storedToken != null) {
+                Authentication authentication = this.tokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info(String.format("[%s] -> %s", this.tokenProvider.getUserName(token), request.getRequestURI()));
+
+            }
         }
         filterChain.doFilter(request, response);
 

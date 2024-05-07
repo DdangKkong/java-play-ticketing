@@ -3,6 +3,7 @@ package zerobase18.playticketing.troupe.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +34,8 @@ public class TroupeController {
 
     private final AuthService authService;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     /**
      * 회원 가입
      */
@@ -52,12 +55,26 @@ public class TroupeController {
 
         Troupe troupe = authService.authenticatedTroupe(sign);
 
+        String token = tokenProvider.createToken(troupe.getLoginId(), troupe.getUserType());
+
+        redisTemplate.opsForValue().set("JWT_TOKEN:" + troupe.getLoginId(), token, tokenProvider.getTokenValidTime());
+
+
         return ResponseEntity.ok(
-                tokenProvider.createToken(
-                        troupe.getLoginId(),
-                        troupe.getUserType()
-                )
+                token
         );
+    }
+
+    /**
+     * 로그 아웃
+     */
+
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('ROLE_TROUPE')")
+    public ResponseEntity<Void> logout(@RequestParam @Valid Integer troupeId) {
+
+        troupeService.logout(troupeId);
+        return ResponseEntity.ok().build();
     }
 
     /**

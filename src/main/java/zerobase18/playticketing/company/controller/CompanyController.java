@@ -3,6 +3,7 @@ package zerobase18.playticketing.company.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -33,6 +34,8 @@ public class CompanyController {
 
     private final AuthService authService;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     /**
      * 극장 업체 회원 가입
      */
@@ -53,12 +56,26 @@ public class CompanyController {
 
         Company company = authService.authenticatedCompany(signInDto);
 
+        String token = tokenProvider.createToken(company.getLoginId(), company.getUserType());
+
+        redisTemplate.opsForValue().set("JWT_TOKEN:" + company.getLoginId(), token, tokenProvider.getTokenValidTime());
+
+
         return ResponseEntity.ok(
-                tokenProvider.createToken(
-                        company.getLoginId(),
-                        company.getUserType()
-                )
+                token
         );
+    }
+
+    /**
+     * 극장 로그 아웃
+     */
+
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('ROLE_COMPANY')")
+    public ResponseEntity<Void> logout(@RequestParam @Valid Integer companyId) {
+
+        companyService.logout(companyId);
+        return ResponseEntity.ok().build();
     }
 
     /**

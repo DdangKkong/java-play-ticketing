@@ -1,6 +1,7 @@
 package zerobase18.playticketing.admin.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import zerobase18.playticketing.admin.repository.AdminRepository;
 import zerobase18.playticketing.admin.service.AdminService;
 import zerobase18.playticketing.auth.dto.AdminSignUpDto;
 import zerobase18.playticketing.auth.type.UserState;
+import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.global.exception.CustomException;
 
 import java.time.LocalDateTime;
@@ -30,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
     private final AdminRepository adminRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final RedisTemplate<String, String> redisTemplates;
 
 
 
@@ -60,6 +64,16 @@ public class AdminServiceImpl implements AdminService {
                 .address(user.getAddress())
                 .build());
         return AdminDto.fromEntity(admin);
+    }
+
+    @Override
+    public void logout(Integer adminId) {
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        if (redisTemplates.opsForValue().get("JWT_TOKEN:" + admin.getLoginId()) != null) {
+            redisTemplates.delete("JWT_TOKEN:" + admin.getLoginId());
+        }
     }
 
     /**

@@ -14,6 +14,11 @@ public interface CompanyService {
      */
     CompanyDto signUp(CompanySignUpDto signUpDto);
 
+    /**
+     * 극장 로그 아웃
+     */
+    void logout(Integer companyId);
+
 
     /**
      * 극장 업체 정보 조회

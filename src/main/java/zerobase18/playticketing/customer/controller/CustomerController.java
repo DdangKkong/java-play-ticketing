@@ -1,8 +1,10 @@
 package zerobase18.playticketing.customer.controller;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,7 @@ public class CustomerController {
     private final CustomerService customerService;
     private final AuthService authService;
     private final TokenProvider tokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 고객 회원가입
@@ -51,13 +54,26 @@ public class CustomerController {
 
         Customer customer = authService.authenticatedCustomer(sign);
 
+        String token = tokenProvider.createToken(customer.getLoginId(), customer.getUserType());
+
+        redisTemplate.opsForValue().set("JWT_TOKEN:" + customer.getLoginId(), token, tokenProvider.getTokenValidTime());
+
 
         return ResponseEntity.ok(
-                tokenProvider.createToken(
-                        customer.getLoginId(),
-                        customer.getUserType()
-                )
+                token
         );
+    }
+
+    /**
+     * 고객 로그 아웃
+     */
+
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('ROLE_CUSTOMER')")
+    public ResponseEntity<Void> logout(@RequestParam @Valid Integer customerId) {
+
+        customerService.logout(customerId);
+        return ResponseEntity.ok().build();
     }
 
     /**

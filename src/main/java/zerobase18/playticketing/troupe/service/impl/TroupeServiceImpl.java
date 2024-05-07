@@ -1,11 +1,13 @@
 package zerobase18.playticketing.troupe.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zerobase18.playticketing.auth.dto.TroupeSignUpDto;
 import zerobase18.playticketing.auth.type.UserType;
+import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.troupe.dto.SearchTroupe;
 import zerobase18.playticketing.troupe.dto.TroupeDto;
@@ -29,6 +31,7 @@ public class TroupeServiceImpl implements TroupeService {
 
     private final TroupeRepository troupeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, String> redisTemplates;
 
 
     /**
@@ -59,6 +62,19 @@ public class TroupeServiceImpl implements TroupeService {
                 .build());
 
         return TroupeDto.fromEntity(troupe);
+    }
+
+    /**
+     * 연극 업체 로그 아웃
+     */
+    @Override
+    public void logout(Integer troupeId) {
+        Troupe troupe = troupeRepository.findById(troupeId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        if (redisTemplates.opsForValue().get("JWT_TOKEN:" + troupe.getLoginId()) != null) {
+            redisTemplates.delete("JWT_TOKEN:" + troupe.getLoginId());
+        }
     }
 
     /**

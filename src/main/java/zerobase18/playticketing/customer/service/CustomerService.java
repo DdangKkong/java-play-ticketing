@@ -22,6 +22,11 @@ public interface CustomerService {
 
 
     /**
+     * 고객 로그 아웃
+     */
+    void logout(Integer customerId);
+
+    /**
      * 고객 정보 조회
      */
     List<CustomerDto> searchCustomer(SearchCustomer.Request request);

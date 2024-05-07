@@ -31,9 +31,4 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
     }
 
-//    @ExceptionHandler(Exception.class)
-//    public ErrorResponse exceptionHandler(Exception e){
-//        return new ErrorResponse(INTERNAL_SERVER_ERROR,
-//                INTERNAL_SERVER_ERROR.getDescription());
-//    }
 }

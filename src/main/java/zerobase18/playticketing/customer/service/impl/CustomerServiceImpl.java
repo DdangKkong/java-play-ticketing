@@ -2,6 +2,8 @@ package zerobase18.playticketing.customer.service.impl;
 
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
-
-
+    private final RedisTemplate<String, String> redisTemplates;
 
 
 
@@ -63,6 +64,21 @@ public class CustomerServiceImpl implements CustomerService {
                 .address(user.getAddress())
                 .build());
         return CustomerDto.fromEntity(customer);
+    }
+
+    /**
+     * 고객 로그 아웃
+     */
+
+    public void logout(Integer customerId) {
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        if (redisTemplates.opsForValue().get("JWT_TOKEN:" + customer.getLoginId()) != null) {
+            redisTemplates.delete("JWT_TOKEN:" + customer.getLoginId());
+        }
+
     }
 
 

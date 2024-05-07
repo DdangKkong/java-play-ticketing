@@ -1,6 +1,7 @@
 package zerobase18.playticketing.company.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import zerobase18.playticketing.company.dto.UpdateCompanyDto;
 import zerobase18.playticketing.company.entity.Company;
 import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.company.service.CompanyService;
+import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.global.exception.CustomException;
 
 import java.time.LocalDateTime;
@@ -29,6 +31,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, String> redisTemplates;
 
 
     /**
@@ -59,6 +62,16 @@ public class CompanyServiceImpl implements CompanyService {
                 .build());
 
         return CompanyDto.fromEntity(company);
+    }
+
+    @Override
+    public void logout(Integer companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
+
+        if (redisTemplates.opsForValue().get("JWT_TOKEN:" + company.getLoginId()) != null) {
+            redisTemplates.delete("JWT_TOKEN:" + company.getLoginId());
+        }
     }
 
     /**

@@ -13,6 +13,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import zerobase18.playticketing.auth.security.AuthenticationFilter;
+import zerobase18.playticketing.auth.security.JwtAccessDeniedHandler;
+import zerobase18.playticketing.auth.security.JwtAuthenticationEntryPoint;
+import zerobase18.playticketing.auth.security.JwtExceptionFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,10 @@ import zerobase18.playticketing.auth.security.AuthenticationFilter;
 public class SecurityConfig {
 
     private final AuthenticationFilter authenticationFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final JwtAuthenticationEntryPoint customAuthenticationEntryPoint;
+
 
 
     private static final String[] AUTH = {
@@ -45,10 +52,15 @@ public class SecurityConfig {
                 .requestMatchers(AUTH).permitAll()
                 // .requestMatchers("/theaters/**").hasRole("COMPANY")
                 .requestMatchers("/answer").hasRole("ADMIN")
-                .anyRequest().permitAll());
+                .anyRequest().permitAll())
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                        httpSecurityExceptionHandlingConfigurer
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(jwtAccessDeniedHandler));
 
         // AuthenticationFilter 추가
         http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtExceptionFilter, AuthenticationFilter.class);
 
         return http.build();
     }
