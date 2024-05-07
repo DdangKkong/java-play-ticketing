@@ -16,6 +16,11 @@ public interface TroupeService {
     TroupeDto signUp(TroupeSignUpDto signUpDto);
 
     /**
+     * 연극 업체 로그 아웃
+     */
+    void logout(Integer troupeId);
+
+    /**
      * 연극 업체 정보 조회
      */
     List<TroupeDto> searchTroupe(SearchTroupe.Request request);

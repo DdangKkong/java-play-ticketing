@@ -2,6 +2,7 @@ package zerobase18.playticketing.auth.security;
 
 
 import io.jsonwebtoken.*;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Getter
 public class TokenProvider {
 
     private final AuthService authService;
@@ -89,6 +91,10 @@ public class TokenProvider {
         SecretKey key = getSecretKey();
 
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public String getCustomerPk(String token) {
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
 

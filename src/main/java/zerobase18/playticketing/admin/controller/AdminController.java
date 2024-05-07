@@ -2,6 +2,7 @@ package zerobase18.playticketing.admin.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,6 @@ import zerobase18.playticketing.auth.dto.AdminSignUpDto;
 import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.security.TokenProvider;
 import zerobase18.playticketing.auth.service.AuthService;
-import zerobase18.playticketing.customer.dto.CustomerInfo;
-import zerobase18.playticketing.customer.dto.DeleteCustomer;
-import zerobase18.playticketing.customer.dto.UpdateCustomerDto;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +30,8 @@ public class AdminController {
     private final TokenProvider tokenProvider;
 
     private final AuthService authService;
+
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 관리자 회원가입
@@ -52,12 +52,25 @@ public class AdminController {
 
         Admin admin = authService.authenticatedAdmin(sign);
 
+        String token = tokenProvider.createToken(admin.getLoginId(), admin.getUserType());
+
+        redisTemplate.opsForValue().set("JWT_TOKEN:" + admin.getLoginId(), token, tokenProvider.getTokenValidTime());
+
+
         return ResponseEntity.ok(
-                tokenProvider.createToken(
-                        admin.getLoginId(),
-                        admin.getUserType()
-                )
+                token
         );
+    }
+
+    /**
+     * 로그 아웃
+     */
+    @PostMapping("/logout")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Void> logout(@RequestParam @Valid Integer adminId) {
+
+        adminService.logout(adminId);
+        return ResponseEntity.ok().build();
     }
 
     /**

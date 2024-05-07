@@ -16,6 +16,11 @@ public interface AdminService {
      */
     AdminDto signUp(AdminSignUpDto user);
 
+    /**
+     * 관리자 로그 아웃
+     */
+    void logout(Integer adminId);
+
 
     /**
      * 관리자 정보 조회

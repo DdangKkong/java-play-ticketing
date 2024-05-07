@@ -86,7 +86,19 @@ public enum ErrorCode {
     RESERVATION_NOT_APPLY(HttpStatus.BAD_REQUEST, "예약 신청이어야만 결제 가능합니다."),
     ALREADY_CANCEL_PAYMENT(HttpStatus.BAD_REQUEST, "이미 결제 취소한 상태입니다."),
     TOO_OLD_RESERVATION(HttpStatus.BAD_REQUEST, "연극 상영일자가 당일이거나 지났습니다."),
-    INVALID_CANCEL_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 환불 금액입니다.");
+    INVALID_CANCEL_AMOUNT(HttpStatus.BAD_REQUEST, "잘못된 환불 금액입니다."),
+
+
+    /**
+     * security error
+     */
+    WRONG_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 토큰입니다."),
+    TOKEN_TIME_OUT(HttpStatus.CONFLICT, "만료된 JWT 토큰입니다."),
+    UNSUPPORTED_TOKEN(HttpStatus.BAD_REQUEST, "지원되지 않는 토큰입니다."),
+    JWT_TOKEN_WRONG_TYPE(HttpStatus.UNAUTHORIZED, "유효하지 않은 구성의 JWT 토큰입니다."),
+    INVALID_ACCESS_TOKEN(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 되지 않았습니다."),
+    WRONG_TYPE_SIGNATURE(HttpStatus.UNAUTHORIZED, "잘못된 JWT 서명입니다.");
 
 
     private final HttpStatus httpStatus;
