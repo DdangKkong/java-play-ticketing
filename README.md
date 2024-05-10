@@ -9,9 +9,10 @@
 
 **사용 기술**
 
-- Back-end : Java, Spring Boot, Spring Data Jpa, Spring Security, Kakao Payment API, Toss Payment API, AWS, Docker
+- Back-end : Java, Spring Boot, Spring Data Jpa, Spring Security, Kakao Payment API, Toss Payment API
 - Database : Mysql, Redis
 - Tools : IntelliJ IDEA, Postman
+- DevOps : AWS, Docker  
 - Collaboration : GitHub, Notion, Slack, Gather
 - **ERD**
 ![image](https://github.com/DdangKkong/play-ticketing/assets/131670203/d5c74c24-e1a5-43a3-bc63-b26ccca865ce)
