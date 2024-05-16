@@ -2,7 +2,11 @@ package zerobase18.playticketing.review.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import zerobase18.playticketing.review.dto.*;
+import org.springframework.data.domain.Slice;
+import zerobase18.playticketing.review.dto.CreateReview;
+import zerobase18.playticketing.review.dto.ReviewDto;
+import zerobase18.playticketing.review.dto.ReviewList;
+import zerobase18.playticketing.review.dto.ReviewUpdate;
 
 public interface ReviewService {
 
@@ -21,7 +25,13 @@ public interface ReviewService {
     /**
      * 리뷰 전체 목록 조회
      */
-    Page<ReviewList> searchReview(Pageable pageable);
+    Page<ReviewList> viewReview(Pageable pageable);
+
+
+    /**
+     * 리뷰 검색 기능
+     */
+    Slice<ReviewDto> searchReview(String title, Pageable pageable);
 
     /**
      * 리뷰 수정
