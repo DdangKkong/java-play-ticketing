@@ -1,11 +1,9 @@
 package zerobase18.playticketing.review.service.impl;
 
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,7 +107,7 @@ public class ReviewServiceImpl implements ReviewService {
      */
     @Override
     @Transactional
-    public Page<ReviewList> searchReview(Pageable pageable) {
+    public Page<ReviewList> viewReview(Pageable pageable) {
 
         Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), 10,
                 Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -124,6 +122,17 @@ public class ReviewServiceImpl implements ReviewService {
 
         return ReviewList.ReviewLists(reviews);
     }
+
+    /**
+     * 리뷰 검색
+     */
+    @Override
+    @Transactional
+    public Slice<ReviewDto> searchReview(String title, Pageable pageable) {
+        return reviewRepository.searchByTitle(title, pageable).map(ReviewDto::fromEntity);
+    }
+
+
 
     /**
      * 리뷰 수정
