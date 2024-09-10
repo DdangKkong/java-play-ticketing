@@ -20,7 +20,7 @@
 
 ### 🛠️ 기술 스택
 
-> - Back-end : Java, Spring Boot, Spring Data Jpa, Spring Security, Kakao Payment API, Toss Payment API, QueryDsl
+> - Back-end : Java, Spring Boot, Spring Data Jpa, Spring Security, Kakao Payment API, Toss Payment API, QueryDsl, OAuth2
 > - Database : Mysql, Redis
 > - Tools : IntelliJ IDEA, Postman
 > - DevOps : AWS, Docker  
@@ -35,6 +35,7 @@
     - 고객, 연극업체, 극장업체, 관리자 회원가입(로그인 아이디 중복 불가)
     - 로그인 - 로그인 아이디, 비밀번호 입력 후 로그인(JWT 토큰 발급)
     - 로그인 - 비밀번호 5회 오류 시 계정 상태 비활성화
+    - 카카오 API 로그인
 
 - Q&A게시판 기능
     - 질문 작성(고객 권한을 가진 유저만 가능)
