@@ -62,6 +62,10 @@ public class AuthService implements UserDetailsService {
             throw new CustomException(USER_LOCK);
         }
 
+        if (!customer.isEmailAuth()) {
+            throw new CustomException(CONFIRM_EMAIL_AUTH);
+        }
+
         validationState(customer.getUserState());
 
         validationCustomerPassword(sign.getPassword(), customer.getPassword());

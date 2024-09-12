@@ -77,6 +77,14 @@ public class Customer extends BaseEntity implements UserDetails {
 
     private int loginAttempt;
 
+    @Builder.Default
+    private boolean emailAuth = false;
+
+
+    public void changeEmailAuth() {
+        this.emailAuth = true;
+    }
+
 
 
     // 사용자가 가지고 있는 권한 목록 반환

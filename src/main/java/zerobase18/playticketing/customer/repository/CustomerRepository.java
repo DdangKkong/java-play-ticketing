@@ -14,13 +14,16 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     boolean existsByLoginId(String loginId);
 
+    boolean existsByEmail(String email);
+
+    Optional<Customer> findByEmail(String email);
+
+
     Optional<Customer> findByLoginId(String loginId);
 
     Customer findByPassword(String password);
 
     List<Customer> findByLoginIdAndPassword(String loginId, String password);
-
-    List<Customer> findByUpdatedAtBeforeAndUserStateEquals(String localDateTime, UserState status);
 
 
 

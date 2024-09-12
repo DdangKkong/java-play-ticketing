@@ -30,6 +30,10 @@ public enum ErrorCode {
     USER_LOCK(HttpStatus.BAD_REQUEST, "계정이 비활성화 되었습니다. 관리자에게 문의해주세요."),
     CUSTOMER_EMAIL_NOT_MATCH(HttpStatus.BAD_REQUEST, "계정과 이메일이 일치하지 않습니다."),
     USER_ALREADY_ACTIVE(HttpStatus.BAD_REQUEST, "계정이 이미 활성화 상태입니다."),
+    CONFIRM_EMAIL_AUTH(HttpStatus.BAD_REQUEST, "이메일 인증을 확인해주세요."),
+    PRECEED_SIGNUP(HttpStatus.BAD_REQUEST, "회원 가입을 먼저 진행해주세요."),
+    EMAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 이메일입니다"),
+    INVALID_AUTH_CODE(HttpStatus.BAD_REQUEST, "유효하지 않은 이메일 인증 코드입니다."),
 
     /**
      * play
