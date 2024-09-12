@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -21,36 +22,32 @@ import java.time.Duration;
 public class RedisConfig {
 
     @Value("${spring.data.redis.host}")
-    public String host;
+    private String host;
+
     @Value("${spring.data.redis.port}")
-    public int port;
-    @Value("${spring.data.redis.connect-timeout}")
-    private Long timeout;
+    private int port;
 
     @Bean
-    public LettuceConnectionFactory lettuceConnectionFactory() {
-        final SocketOptions socketoptions = SocketOptions.builder().connectTimeout(Duration.ofSeconds(10)).build();
-        final ClientOptions clientoptions = ClientOptions.builder().socketOptions(socketoptions).build();
-        LettuceClientConfiguration lettuceClientConfiguration = LettuceClientConfiguration.builder().clientOptions(clientoptions)
-                .commandTimeout(Duration.ofMinutes(1))
-                .shutdownTimeout(Duration.ZERO)
-                .build();
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(host, port);
-        redisStandaloneConfiguration.setDatabase(0);
-        return new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceClientConfiguration);
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory(host, port);
     }
 
-
-    @Bean(name="redisTemplate")
+    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(lettuceConnectionFactory());
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+
+        // 일반적인 key:value 시리얼라이저
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
+
+        // Hash 사용할 경우 시리얼라이저
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
-        redisTemplate.setStringSerializer(new StringRedisSerializer());
-        redisTemplate.afterPropertiesSet();
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
+
+        // 모든 경우
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+
         return redisTemplate;
     }
 
