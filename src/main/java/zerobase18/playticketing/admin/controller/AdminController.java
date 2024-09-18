@@ -3,6 +3,7 @@ package zerobase18.playticketing.admin.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,9 @@ import zerobase18.playticketing.auth.dto.AdminSignUpDto;
 import zerobase18.playticketing.auth.dto.SignInDto;
 import zerobase18.playticketing.auth.security.TokenProvider;
 import zerobase18.playticketing.auth.service.AuthService;
+import zerobase18.playticketing.global.dto.SendMailRequest;
+import zerobase18.playticketing.global.dto.VerifyMailRequest;
+import zerobase18.playticketing.global.service.MailService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +35,8 @@ public class AdminController {
 
     private final AuthService authService;
 
+    private final MailService mailService;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -42,6 +48,33 @@ public class AdminController {
         return ResponseEntity.ok().body(
                 adminSignUpDto.fromEntity(adminService.signUp(adminSignUpDto))
         );
+    }
+
+
+    /**
+     * 이메일 인증 번호 전송
+     */
+    @PostMapping("/mail/certification")
+    public ResponseEntity<?> sendCertificationMail(
+            @RequestBody SendMailRequest request
+    ) {
+
+        mailService.sendAuthMail(request.getEmail());
+
+        return ResponseEntity.ok().body("인증번호가 전송되었습니다");
+    }
+
+
+    /**
+     * 이메일 인증
+     */
+    @PostMapping("/mail/verify")
+    public ResponseEntity<?> sendVerifyMail(@RequestBody VerifyMailRequest request) {
+
+        mailService.adminVerifyEmail(request.getEmail(), request.getCode());
+
+        return ResponseEntity.ok(HttpStatus.OK);
+
     }
 
     /**

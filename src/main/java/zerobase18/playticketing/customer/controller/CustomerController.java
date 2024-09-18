@@ -1,7 +1,6 @@
 package zerobase18.playticketing.customer.controller;
 
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,7 +21,6 @@ import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.service.CustomerService;
 import zerobase18.playticketing.global.dto.SendMailRequest;
 import zerobase18.playticketing.global.dto.VerifyMailRequest;
-import zerobase18.playticketing.global.exception.CustomException;
 import zerobase18.playticketing.global.service.MailService;
 
 import java.util.List;
@@ -71,7 +69,7 @@ public class CustomerController {
     @PostMapping("/mail/verify")
     public ResponseEntity<?> sendVerifyMail(@RequestBody VerifyMailRequest request) {
 
-        mailService.verifyEmail(request.getEmail(), request.getCode());
+        mailService.customerVerifyEmail(request.getEmail(), request.getCode());
 
         return ResponseEntity.ok(HttpStatus.OK);
 

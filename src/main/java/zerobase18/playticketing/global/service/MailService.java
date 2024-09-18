@@ -7,10 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import zerobase18.playticketing.admin.entity.Admin;
+import zerobase18.playticketing.admin.repository.AdminRepository;
+import zerobase18.playticketing.company.entity.Company;
+import zerobase18.playticketing.company.repository.CompanyRepository;
 import zerobase18.playticketing.customer.entity.Customer;
 import zerobase18.playticketing.customer.repository.CustomerRepository;
 import zerobase18.playticketing.global.exception.CustomException;
-import zerobase18.playticketing.global.type.ErrorCode;
+import zerobase18.playticketing.troupe.entity.Troupe;
+import zerobase18.playticketing.troupe.repository.TroupeRepository;
 
 import java.util.Random;
 
@@ -27,6 +32,12 @@ public class MailService {
 
     private final CustomerRepository customerRepository;
 
+    private final CompanyRepository companyRepository;
+
+    private final TroupeRepository troupeRepository;
+
+    private final AdminRepository adminRepository;
+
     private static final int CODE_LENGTH = 6;
 
     private static final Long EMAIL_TOKEN_EXPIRATION = 600000L;
@@ -42,9 +53,15 @@ public class MailService {
 
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-        boolean exists = customerRepository.existsByEmail(email);
+        boolean customerExists = customerRepository.existsByEmail(email);
 
-        if (!exists) {
+        boolean companyExists = companyRepository.existsByEmail(email);
+
+        boolean adminExists = adminRepository.existsByEmail(email);
+
+        boolean troupeExists = troupeRepository.existsByEmail(email);
+
+        if (!customerExists && !companyExists & !adminExists & !troupeExists) {
             throw new CustomException(PRECEED_SIGNUP);
         }
 
@@ -79,7 +96,7 @@ public class MailService {
 
     }
 
-    public void verifyEmail(String email, String code) {
+    public void customerVerifyEmail(String email, String code) {
 
         if (!isVerify(email, code)) {
             throw new CustomException(INVALID_AUTH_CODE);
@@ -93,6 +110,55 @@ public class MailService {
 
         redisService.deleteData(EMAIL_PREFIX + email);
     }
+
+    public void companyVerifyEmail(String email, String code) {
+
+        if (!isVerify(email, code)) {
+            throw new CustomException(INVALID_AUTH_CODE);
+        }
+
+        Company company = companyRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+
+        company.changeEmailAuth();
+        companyRepository.save(company);
+
+        redisService.deleteData(EMAIL_PREFIX + email);
+    }
+
+
+    public void adminVerifyEmail(String email, String code) {
+
+        if (!isVerify(email, code)) {
+            throw new CustomException(INVALID_AUTH_CODE);
+        }
+
+        Admin admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+
+        admin.changeEmailAuth();
+        adminRepository.save(admin);
+
+        redisService.deleteData(EMAIL_PREFIX + email);
+    }
+
+
+    public void troupeVerifyEmail(String email, String code) {
+
+        if (!isVerify(email, code)) {
+            throw new CustomException(INVALID_AUTH_CODE);
+        }
+
+        Troupe troupe = troupeRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(EMAIL_NOT_FOUND));
+
+        troupe.changeEmailAuth();
+        troupeRepository.save(troupe);
+
+        redisService.deleteData(EMAIL_PREFIX + email);
+    }
+
+
 
     private String createRandomCode() {
         Random random = new Random();

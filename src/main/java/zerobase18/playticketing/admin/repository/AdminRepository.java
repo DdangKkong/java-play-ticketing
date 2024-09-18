@@ -13,7 +13,11 @@ public interface AdminRepository extends JpaRepository<Admin, Integer> {
 
     boolean existsByLoginId(String loginId);
 
+    boolean existsByEmail(String email);
+
     Optional<Admin> findByLoginId(String loginId);
+
+    Optional<Admin> findByEmail(String email);
 
     List<Admin> findByLoginIdAndPassword(String loginId, String password);
 

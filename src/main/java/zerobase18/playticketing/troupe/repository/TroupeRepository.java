@@ -10,7 +10,11 @@ public interface TroupeRepository extends JpaRepository<Troupe, Integer> {
 
     boolean existsByLoginId(String loginId);
 
+    boolean existsByEmail(String email);
+
     Optional<Troupe> findByLoginId(String loginId);
+
+    Optional<Troupe> findByEmail(String email);
 
 
     List<Troupe> findByLoginIdAndPassword(String loginId, String password);

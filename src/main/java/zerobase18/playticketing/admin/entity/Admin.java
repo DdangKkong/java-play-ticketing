@@ -56,6 +56,14 @@ public class Admin extends BaseEntity implements UserDetails {
 
     private String unRegisteredAt;
 
+    @Builder.Default
+    private boolean emailAuth = false;
+
+    public void changeEmailAuth() {
+        this.emailAuth = true;
+    }
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
