@@ -11,9 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import zerobase18.playticketing.auth.type.UserState;
 import zerobase18.playticketing.auth.type.UserType;
 import zerobase18.playticketing.global.entity.BaseEntity;
-import zerobase18.playticketing.payment.type.ReserStat;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 

@@ -62,6 +62,14 @@ public class Company extends BaseEntity implements UserDetails {
     @LastModifiedDate
     private String unRegisteredAt;
 
+    @Builder.Default
+    private boolean emailAuth = false;
+
+
+    public void changeEmailAuth() {
+        this.emailAuth = true;
+    }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -80,6 +80,10 @@ public class AuthService implements UserDetailsService {
         Company company = checkCompanyLogInId(sign.getLoginId());
 
 
+        if (!company.isEmailAuth()) {
+            throw new CustomException(CONFIRM_EMAIL_AUTH);
+        }
+
         validationState(company.getUserState());
 
         validationPassword(sign.getPassword(), company.getPassword());
@@ -91,6 +95,12 @@ public class AuthService implements UserDetailsService {
     public Troupe authenticatedTroupe(SignInDto sign) {
         Troupe troupe = checkTroupeLogInId(sign.getLoginId());
 
+
+        if (!troupe.isEmailAuth()) {
+            throw new CustomException(CONFIRM_EMAIL_AUTH);
+        }
+
+
         validationState(troupe.getUserState());
 
 
@@ -101,6 +111,11 @@ public class AuthService implements UserDetailsService {
 
     public Admin authenticatedAdmin(SignInDto sign) {
         Admin admin = checkAdminLogInId(sign.getLoginId());
+
+
+        if (!admin.isEmailAuth()) {
+            throw new CustomException(CONFIRM_EMAIL_AUTH);
+        }
 
         validationState(admin.getUserState());
 
