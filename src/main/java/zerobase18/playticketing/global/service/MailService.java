@@ -6,6 +6,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import zerobase18.playticketing.admin.entity.Admin;
 import zerobase18.playticketing.admin.repository.AdminRepository;
@@ -45,6 +46,7 @@ public class MailService {
     private static final String EMAIL_PREFIX = "Email-Auth: ";
 
 
+    @Async
     public void sendAuthMail(String email) {
 
         String code = createRandomCode();
